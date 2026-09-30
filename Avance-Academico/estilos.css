@@ -1,0 +1,385 @@
+/* ========================================================================== */
+/* estilos.css: ESTILOS DE LA PARRILLA DE HORARIO Y COMPONENTES              */
+/* ========================================================================== */
+html, body {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
+  box-sizing: border-box;
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+body {
+  font-family: 'Poppins', sans-serif;
+  background-color: #0b1329;
+}
+
+.texto-vagrant {
+  font-family: 'Press Start 2P', monospace;
+  color: #38bdf8;
+  text-shadow: 0 0 10px rgba(56, 189, 248, 0.6), 0 0 20px rgba(56, 189, 248, 0.3);
+}
+
+/* BANNER & CABECERA */
+.banner-bg {
+  background: radial-gradient(circle at 50% 20%, #1e293b 0%, #0f172a 100%);
+  position: relative;
+  overflow: hidden;
+}
+
+.banner-bg::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle at 30% 50%, rgba(20, 184, 166, 0.12) 0%, transparent 60%),
+              radial-gradient(circle at 70% 80%, rgba(59, 130, 246, 0.12) 0%, transparent 60%);
+  pointer-events: none;
+}
+
+/* CAJAS DE MÉTRICAS */
+.metric-box {
+  padding: 0.15rem 0.5rem;
+  background-color: rgba(30, 41, 59, 0.5);
+  border: 1px solid #334155;
+  border-radius: 0.5rem;
+  text-align: center;
+  min-width: 55px;
+}
+
+.metric-title {
+  font-size: 8px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: -0.025em;
+}
+
+.metric-value {
+  font-size: 0.75rem;
+  font-weight: 900;
+  line-height: 1;
+  margin-top: 0.15rem;
+}
+
+/* MODALES */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(2, 6, 23, 0.8);
+  backdrop-filter: blur(4px);
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+.modal-container-dark {
+  background-color: #0b1329;
+  border: 1px solid rgba(51, 65, 85, 0.8);
+  border-radius: 1.5rem;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  color: #ffffff;
+}
+
+.modal-section-card {
+  background-color: rgba(15, 23, 42, 0.7);
+  padding: 1rem;
+  border-radius: 1rem;
+  border: 1px solid #1e293b;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+/* MODAL DETALLE DE MATERIA ESTILO COMPACTO */
+.modal-card-detalle {
+  animation: modalFadeIn 0.2s ease-out forwards;
+}
+
+@keyframes modalFadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.tab-dia-btn {
+  padding-bottom: 4px;
+  color: #64748b;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+}
+
+.tab-dia-btn.active {
+  color: #00bfa5;
+  border-bottom: 2px solid #00bfa5;
+}
+
+/* SCROLLBAR */
+.scroll-horizontal::-webkit-scrollbar {
+  height: 6px;
+}
+.scroll-horizontal::-webkit-scrollbar-track {
+  background: #0f172a;
+  border-radius: 6px;
+}
+.scroll-horizontal::-webkit-scrollbar-thumb {
+  background: #334155;
+  border-radius: 6px;
+}
+.scroll-horizontal::-webkit-scrollbar-thumb:hover {
+  background: #475569;
+}
+
+/* ========================================================================== */
+/* ESTRUCTURA CSS GRID RESPONSIVA ESTILO IMAGEN 2 (100% ANCHO SIN SCROLL)     */
+/* ========================================================================== */
+.parrilla-horario-grid {
+  display: grid;
+  width: 100%;
+  /* 32px para la columna de horas (H) y el resto distribuido entre los 6 días */
+  grid-template-columns: 32px repeat(6, minmax(0, 1fr));
+  grid-template-rows: 28px repeat(15, 42px);
+  position: relative;
+  border: 1px solid rgba(51, 65, 85, 0.6);
+  border-radius: 8px;
+  overflow: hidden;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+@media (min-width: 640px) {
+  .parrilla-horario-grid {
+    grid-template-columns: 45px repeat(6, minmax(0, 1fr));
+    grid-template-rows: 32px repeat(15, 45px);
+  }
+}
+
+@media (min-width: 1024px) {
+  .parrilla-horario-grid {
+    grid-template-columns: 55px repeat(6, minmax(0, 1fr));
+    grid-template-rows: 34px repeat(15, 48px);
+  }
+}
+
+/* Cabeceras Superiores: H, L, M, I, J, V, S */
+.parrilla-col-header {
+  height: 100%;
+  background-color: rgba(15, 23, 42, 0.85);
+  backdrop-filter: blur(4px);
+  color: #cbd5e1;
+  font-weight: 800;
+  font-size: 9px;
+  text-align: center;
+  border-bottom: 1px solid rgba(51, 65, 85, 0.5);
+  border-right: 1px solid rgba(51, 65, 85, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-transform: uppercase;
+  position: sticky;
+  top: 0;
+  z-index: 20;
+}
+
+.parrilla-col-header.hora-col {
+  color: #38bdf8;
+  font-weight: 900;
+}
+
+/* Celda de etiqueta de Hora (H): Delgada y transparente como en imagen 2 */
+.parrilla-hora-label {
+  height: 100%;
+  color: #94a3b8;
+  font-size: 7.5px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-bottom: 1px solid rgba(51, 65, 85, 0.35);
+  border-right: 1px solid rgba(51, 65, 85, 0.5);
+  background-color: rgba(15, 23, 42, 0.75);
+  backdrop-filter: blur(2px);
+  user-select: none;
+  box-sizing: border-box;
+  text-align: center;
+  padding: 0 1px;
+  line-height: 1.1;
+}
+
+/* Celda guía de fondo */
+.parrilla-celda-slot {
+  height: 100%;
+  border-bottom: 1px solid rgba(51, 65, 85, 0.25);
+  border-right: 1px solid rgba(51, 65, 85, 0.25);
+  pointer-events: none;
+  box-sizing: border-box;
+}
+
+/* TARJETAS DE MATERIA ESTILO IMAGEN 2 (LLENAN EL RECUADRO Y TEXTO CENTRADO) */
+.tarjeta-materia-parrilla {
+  border-radius: 2px;
+  padding: 2px 1.5px;
+  margin: 0.5px;
+  height: calc(100% - 1px);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  text-align: center;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(2px);
+  z-index: 10;
+  overflow: hidden;
+  box-sizing: border-box;
+  cursor: pointer !important;
+  transition: filter 0.15s ease;
+}
+
+.tarjeta-materia-parrilla:hover {
+  filter: brightness(1.15);
+  z-index: 15;
+}
+
+.tarjeta-materia-clave {
+  font-size: 6px;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  opacity: 0.9;
+  text-transform: uppercase;
+  line-height: 1;
+}
+
+.tarjeta-materia-nombre {
+  font-size: 6.5px;
+  font-weight: 800;
+  line-height: 1.05;
+  text-transform: uppercase;
+  margin: auto 0;
+  padding: 1px 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  word-break: break-word;
+}
+
+.tarjeta-materia-pie {
+  font-size: 5.5px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  opacity: 0.9;
+  text-transform: uppercase;
+  line-height: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Ajuste progresivo para pantallas más grandes */
+@media (min-width: 640px) {
+  .tarjeta-materia-parrilla {
+    border-radius: 4px;
+    padding: 3px 3px;
+    margin: 1px;
+    height: calc(100% - 2px);
+  }
+  .tarjeta-materia-clave { font-size: 7.5px; }
+  .tarjeta-materia-nombre { font-size: 8px; line-height: 1.1; }
+  .tarjeta-materia-pie { font-size: 7px; }
+  .parrilla-hora-label { font-size: 8.5px; }
+  .parrilla-col-header { font-size: 10px; }
+}
+
+@media (min-width: 1024px) {
+  .tarjeta-materia-clave { font-size: 8.5px; }
+  .tarjeta-materia-nombre { font-size: 9px; line-height: 1.15; }
+  .tarjeta-materia-pie { font-size: 7.5px; }
+}
+
+/* FONDOS DINÁMICOS DE LA PARRILLA */
+.fondo-parrilla-default {
+  background-color: rgba(15, 23, 42, 0.95);
+  background-image: radial-gradient(rgba(51, 65, 85, 0.4) 1px, transparent 1px);
+  background-size: 20px 20px;
+}
+
+.fondo-grad-midnight {
+  background-image: linear-gradient(135deg, #090e1a 0%, #111827 50%, #1e293b 100%) !important;
+}
+
+.fondo-grad-aurora {
+  background-image: linear-gradient(135deg, #022c22 0%, #0f172a 50%, #064e3b 100%) !important;
+}
+
+.fondo-grad-ocean {
+  background-image: linear-gradient(135deg, #082f49 0%, #0f172a 50%, #0369a1 100%) !important;
+}
+
+.fondo-grad-cyberpunk {
+  background-image: linear-gradient(135deg, #3b0764 0%, #0f172a 50%, #581c87 100%) !important;
+}
+
+.fondo-solido-slate {
+  background: #0f172a !important;
+}
+
+.fondo-solido-obsidian {
+  background: #050811 !important;
+}
+
+.fondo-solido-navy {
+  background: #0a192f !important;
+}
+
+.fondo-img-montana {
+  background-image: linear-gradient(rgba(15, 23, 42, 0.8), rgba(15, 23, 42, 0.88)), 
+                    url('https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1920&q=80') !important;
+  background-size: cover !important;
+}
+
+.fondo-img-stars {
+  background-image: linear-gradient(rgba(15, 23, 42, 0.8), rgba(15, 23, 42, 0.88)), 
+                    url('https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=1920&q=80') !important;
+  background-size: cover !important;
+}
+
+/* PALETA DE 24 COLORES EXCLUSIVOS */
+.color-card-1  { background-color: rgba(225, 29, 72, 0.9);   border: 1px solid #fda4af; color: #ffffff; }
+.color-card-2  { background-color: rgba(2, 132, 199, 0.9);   border: 1px solid #7dd3fc; color: #ffffff; }
+.color-card-3  { background-color: rgba(16, 185, 129, 0.9);  border: 1px solid #6ee7b7; color: #ffffff; }
+.color-card-4  { background-color: rgba(139, 92, 246, 0.9);  border: 1px solid #c4b5fd; color: #ffffff; }
+.color-card-5  { background-color: rgba(234, 88, 12, 0.9);   border: 1px solid #fdba74; color: #ffffff; }
+.color-card-6  { background-color: rgba(13, 148, 136, 0.9);  border: 1px solid #5eead4; color: #ffffff; }
+.color-card-7  { background-color: rgba(192, 38, 211, 0.9);  border: 1px solid #f0abfc; color: #ffffff; }
+.color-card-8  { background-color: rgba(202, 138, 4, 0.92);  border: 1px solid #fde047; color: #1e293b; }
+.color-card-9  { background-color: rgba(79, 70, 229, 0.9);   border: 1px solid #a5b4fc; color: #ffffff; }
+.color-card-10 { background-color: rgba(101, 163, 13, 0.9);  border: 1px solid #bef264; color: #ffffff; }
+.color-card-11 { background-color: rgba(244, 63, 94, 0.9);   border: 1px solid #fecdd3; color: #ffffff; }
+.color-card-12 { background-color: rgba(6, 182, 212, 0.9);   border: 1px solid #a5f3fc; color: #ffffff; }
+.color-card-13 { background-color: rgba(126, 34, 206, 0.9);  border: 1px solid #d8b4fe; color: #ffffff; }
+.color-card-14 { background-color: rgba(249, 115, 22, 0.9);  border: 1px solid #fed7aa; color: #ffffff; }
+.color-card-15 { background-color: rgba(5, 150, 105, 0.9);   border: 1px solid #a7f3d0; color: #ffffff; }
+.color-card-16 { background-color: rgba(37, 99, 235, 0.9);   border: 1px solid #93c5fd; color: #ffffff; }
+.color-card-17 { background-color: rgba(159, 18, 57, 0.9);   border: 1px solid #fecdd3; color: #ffffff; }
+.color-card-18 { background-color: rgba(132, 204, 22, 0.9);  border: 1px solid #d9f99d; color: #1e293b; }
+.color-card-19 { background-color: rgba(236, 72, 153, 0.9);  border: 1px solid #fbcfe8; color: #ffffff; }
+.color-card-20 { background-color: rgba(30, 64, 175, 0.92);  border: 1px solid #bfdbfe; color: #ffffff; }
+.color-card-21 { background-color: rgba(180, 83, 9, 0.9);    border: 1px solid #fde68a; color: #ffffff; }
+.color-card-22 { background-color: rgba(14, 116, 144, 0.9);  border: 1px solid #67e8f9; color: #ffffff; }
+.color-card-23 { background-color: rgba(112, 26, 117, 0.9);  border: 1px solid #f5d0fe; color: #ffffff; }
+.color-card-24 { background-color: rgba(185, 28, 28, 0.9);   border: 1px solid #fca5a5; color: #ffffff; }

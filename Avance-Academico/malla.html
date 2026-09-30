@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Malla Curricular ICOM 2021 - MI ESPACIO CUCEI</title>
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <!-- Tipografía Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&family=Press+Start+2P&display=swap" rel="stylesheet">
+
+  <!-- ESTILOS INTEGRADOS -->
+  <style>
+    
+    html, body {
+      width: 100%;
+      max-width: 100%;
+      overflow-x: hidden;
+      box-sizing: border-box;
+    } 
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+    }
+    body {
+      font-family: 'Poppins', sans-serif;
+    }
+
+    .texto-vagrant {
+      font-family: 'Press Start 2P', monospace;
+      color: #38bdf8;
+      text-shadow: 0 0 10px rgba(56, 189, 248, 0.6), 0 0 20px rgba(56, 189, 248, 0.3);
+    }
+
+    /* BANNER & CABECERA */
+    .banner-bg {
+      background: radial-gradient(circle at 50% 20%, #1e293b 0%, #0f172a 100%);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .banner-bg::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle at 30% 50%, rgba(20, 184, 166, 0.12) 0%, transparent 60%),
+                  radial-gradient(circle at 70% 80%, rgba(59, 130, 246, 0.12) 0%, transparent 60%);
+      pointer-events: none;
+    }
+
+    /* CAJAS DE MÉTRICAS */
+    .metric-box {
+      padding: 0.2rem 0.6rem;
+      background-color: rgba(30, 41, 59, 0.5);
+      border: 1px solid #334155;
+      border-radius: 0.5rem;
+      text-align: center;
+      min-width: 60px;
+    }
+
+    .metric-title {
+      font-size: 8.5px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: -0.025em;
+    }
+
+    .metric-value {
+      font-size: 0.8rem;
+      font-weight: 900;
+      line-height: 1;
+      margin-top: 0.2rem;
+    }
+
+    /* MODALES */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background-color: rgba(2, 6, 23, 0.8);
+      backdrop-filter: blur(4px);
+      z-index: 50;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+    }
+
+    .modal-container-dark {
+      background-color: #0b1329;
+      border: 1px solid rgba(51, 65, 85, 0.8);
+      border-radius: 1.5rem;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      color: #ffffff;
+    }
+
+    .modal-section-card {
+      background-color: rgba(15, 23, 42, 0.7);
+      padding: 1rem;
+      border-radius: 1rem;
+      border: 1px solid #1e293b;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    /* MATRIZ DE MALLA */
+    .malla-grid-board {
+      display: grid;
+      grid-template-columns: repeat(9, minmax(0, 1fr));
+      gap: 6px;
+      width: 100%;
+    }
+
+    /* SCROLLBAR PERSONALIZADO ELEGANTE */
+    .scroll-horizontal::-webkit-scrollbar {
+      height: 8px;
+    }
+    .scroll-horizontal::-webkit-scrollbar-track {
+      background: #e2e8f0;
+      border-radius: 8px;
+    }
+    .scroll-horizontal::-webkit-scrollbar-thumb {
+      background: #94a3b8;
+      border-radius: 8px;
+    }
+    .scroll-horizontal::-webkit-scrollbar-thumb:hover {
+      background: #64748b;
+    }
+
+    /* CASILLAS REDONDEADAS CON CONTORNO BLANCO / LIMPIO */
+    .celda-materia {
+      background-color: #ffffff;
+      border: 1.5px solid #ffffff;
+      border-radius: 10px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 5px 6px;
+      min-height: 86px;
+      position: relative;
+      box-sizing: border-box;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    }
+
+    /* CLAVE LIMPIA */
+    .clave-texto {
+      width: 100%;
+      text-align: center;
+      font-weight: 900;
+      font-size: 11px;
+      letter-spacing: 0.02em;
+      background: transparent;
+      border: none;
+      padding: 0;
+      margin-bottom: 2px;
+    }
+
+    /* COLORES DE LETRAS PARA LAS COMPETENCIAS */
+    .texto-inicial {
+      color: #ca8a04;
+    }
+
+    .texto-intermedio {
+      color: #0284c7;
+    }
+
+    .texto-egreso {
+      color: #16a34a;
+    }
+
+    .texto-lab {
+      color: #db2777;
+    }
+
+    .texto-requisito {
+      color: #7e22ce;
+    }
+
+    /* ESTADOS DE AVANCE CON FONDO TENUE COMPLETO */
+    .materia-aprobada {
+      background-color: #ecfdf5 !important;
+      border: 1.5px solid #10b981 !important;
+    }
+
+    .materia-en-curso {
+      background-color: #fff7ed !important;
+      border: 1.5px solid #f97316 !important;
+    }
+
+    .materia-disponible {
+      background-color: #fef2f2 !important;
+      border: 1.5px solid #f87171 !important;
+    }
+
+    .materia-bloqueada {
+      background-color: #f1f5f9 !important;
+      border: 1.5px solid #cbd5e1 !important;
+    }
+
+    .materia-vacia {
+      background-color: transparent;
+      border: 1px dashed #cbd5e1;
+      border-radius: 10px;
+      min-height: 86px;
+    }
+
+    /* MODO SIN ANIMACIONES */
+    body.no-transitions *,
+    body.no-transitions *::before,
+    body.no-transitions *::after {
+      transition: none !important;
+      animation: none !important;
+    }
+
+    /* MÓDULOS DE ESPECIALIZACIÓN */
+    .card-modulo-contenedor {
+      background-color: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+    }
+
+    .modulo-header-titulo {
+      background-color: #0f172a;
+      color: #ffffff;
+      font-size: 8.5px;
+      font-weight: 900;
+      text-transform: uppercase;
+      text-align: center;
+      padding: 4px 6px;
+      border-radius: 6px;
+      letter-spacing: 0.04em;
+    }
+
+    .celda-materia-modulo {
+      background-color: #ffffff;
+      border: 1.5px solid #ffffff;
+      border-radius: 8px;
+      padding: 4px 5px;
+      min-height: 76px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+    }
+  </style>
+</head>
+
+<body class="bg-[#f8fafc] text-gray-800 flex flex-col min-h-screen select-none w-full antialiased">
+
+  <!-- NAVBAR PRINCIPAL -->
+  <header class="bg-[#111827] text-white px-3 sm:px-5 py-2.5 shadow-md border-b border-slate-800 sticky top-0 z-50">
+    <div class="max-w-[1750px] mx-auto flex items-center justify-between gap-2 sm:gap-4">
+      
+      <!-- Lado Izquierdo -->
+      <div class="flex items-center gap-1.5 sm:gap-3 relative min-w-0">
+        <button id="btnMenuPrincipal" onclick="toggleMenuPrincipal()" class="flex items-center gap-1.5 text-slate-300 hover:text-white transition px-2 sm:px-2.5 py-1.5 rounded-lg hover:bg-slate-800 border border-slate-700/60 text-xs cursor-pointer shrink-0">
+          <i class="fa-solid fa-bars"></i>
+          <span class="font-medium hidden sm:inline">Menú</span>
+        </button>
+
+        <!-- MENÚ DESPLEGABLE -->
+        <div id="menuLateralOpciones" class="hidden absolute left-0 top-full mt-2 w-64 bg-[#1e2438] border border-slate-700/70 rounded-2xl shadow-2xl z-50 py-2 overflow-hidden text-sm">
+          <a href="dashboardEstudiantil.html" class="flex items-center justify-between px-4 py-3 text-slate-300 hover:text-white hover:bg-slate-800/50 transition">
+            <div class="flex items-center gap-3">
+              <i class="fa-solid fa-house text-teal-400 text-sm w-5 text-center"></i>
+              <span>Inicio</span>
+            </div>
+          </a>
+          <a href="malla.html" class="flex items-center justify-between px-4 py-3 text-slate-300 hover:text-white hover:bg-slate-800/50 transition">
+            <div class="flex items-center gap-3">
+              <i class="fa-solid fa-sitemap text-teal-400 text-sm w-5 text-center"></i>
+              <span>Malla Curricular</span>
+            </div>
+          </a>
+          <a href="horario.html" class="flex items-center justify-between px-4 py-3 text-white bg-slate-800/80 border-l-4 border-amber-400 font-semibold transition">
+            <div class="flex items-center gap-3">
+              <i class="fa-regular fa-calendar text-teal-400 text-sm w-5 text-center"></i>
+              <span>Mi Horario</span>
+            </div>
+          </a>
+        </div>
+
+        <!-- Badge Carrera (se compacta en móvil) -->
+        <div class="hidden sm:flex items-center space-x-2 bg-slate-800/90 border border-slate-700 text-white text-xs px-2.5 py-1.5 rounded-xl shadow-inner truncate">
+          <i class="fa-solid fa-graduation-cap text-teal-400 shrink-0"></i>
+          <span class="font-bold truncate">Ingeniería en Computación</span>
+        </div>
+
+        <!-- Badge Ciclo -->
+        <div class="flex items-center gap-1 bg-[#0f172a] border border-slate-700/80 px-2 py-1 rounded-xl shadow-md shrink-0">
+          <span class="text-xs">📊</span>
+          <span class="text-[10px] font-black text-amber-400 uppercase tracking-wider">ICOM 2021</span>
+        </div>
+      </div>
+
+      <!-- Lado Derecho (Iconos y acciones) -->
+      <div class="flex items-center gap-1.5 sm:gap-2 shrink-0">
+        <button id="btn-ver-clases" onclick="abrirModalHorario()" class="bg-sky-600 hover:bg-sky-500 text-white font-bold text-xs py-1.5 px-2.5 sm:px-3 rounded-xl transition flex items-center gap-1.5 shadow-md cursor-pointer">
+          <i class="fa-regular fa-calendar-days text-xs"></i>
+          <span class="hidden md:inline">Ver mis clases</span>
+        </button>
+
+        <button onclick="abrirModalConfiguracion()" title="Configuración" class="text-slate-400 hover:text-white text-sm p-1.5 rounded-full hover:bg-slate-800 transition cursor-pointer">
+          <i class="fa-solid fa-gear"></i>
+        </button>
+
+        <button onclick="abrirModalPerfil()" title="Ver perfil" class="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center text-slate-300 hover:text-white hover:border-teal-500 shadow-sm transition overflow-hidden cursor-pointer shrink-0">
+          <img id="avatarUsuarioNav" class="w-full h-full object-cover hidden" alt="Avatar">
+          <i id="iconoUsuarioNav" class="fa-solid fa-user text-xs"></i>
+        </button>
+
+        <!-- Botón Salir -->
+        <button onclick="cerrarSesionUsuario()" title="Cerrar sesión" class="text-rose-400 hover:text-rose-300 text-sm p-1.5 rounded-full hover:bg-slate-800 transition cursor-pointer shrink-0">
+          <i class="fa-solid fa-arrow-right-from-bracket"></i>
+        </button>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- BANNER COMPACTO -->
+  <section class="banner-bg text-white py-3 px-5 border-b border-slate-800 shadow-inner">
+    <div class="max-w-[1750px] mx-auto flex flex-col md:flex-row items-center justify-between gap-3">
+      <div>
+        <h1 id="saludoUsuario" class="text-lg md:text-xl font-extrabold tracking-tight text-white leading-tight">Malla Curricular ICOM 2021</h1>
+        <p class="text-slate-400 text-[11px]">Centro Universitario de Ciencias Exactas e Ingenierías • CUCEI</p>
+      </div>
+
+      <!-- Métricas Resumen -->
+      <div class="flex items-center flex-wrap gap-2 bg-[#0b1329]/70 p-1.5 rounded-xl border border-slate-700/80 shadow-md">
+        <div class="metric-box">
+          <p class="metric-title text-emerald-400">Aprobadas</p>
+          <p id="total-aprobadas" class="metric-value text-emerald-400">0</p>
+        </div>
+        <div class="metric-box">
+          <p class="metric-title text-orange-400">En Curso</p>
+          <p id="total-en-curso" class="metric-value text-orange-400">0</p>
+        </div>
+        <div class="metric-box">
+          <p class="metric-title text-slate-400">Pendientes</p>
+          <p id="materias-pendientes" class="metric-value text-slate-200">0</p>
+        </div>
+        <div class="metric-box min-w-[65px]">
+          <p class="metric-title text-indigo-300">Avance</p>
+          <p id="porcentaje-avance" class="metric-value text-indigo-300">0%</p>
+        </div>
+        <div class="metric-box min-w-[80px]">
+          <p class="metric-title text-sky-300">Créditos</p>
+          <p id="total-creditos" class="metric-value text-sky-300 text-[11px]">0 / 394 C</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- BARRA SUPERIOR DE ESTADOS -->
+  <div class="max-w-[1750px] mx-auto w-full px-4 pt-3 pb-1">
+    <div class="bg-white border border-slate-200 rounded-full px-6 py-1.5 flex flex-wrap items-center justify-between gap-4 text-xs font-semibold shadow-xs">
+      <div class="flex items-center gap-5 flex-wrap">
+        <div class="flex items-center gap-2">
+          <span class="w-4 h-3 bg-[#10b981] rounded-xs inline-block"></span>
+          <span class="text-slate-800 text-[11px] font-bold">materias aprobadas</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <span class="w-4 h-3 bg-[#f97316] rounded-xs inline-block"></span>
+          <span class="text-slate-800 text-[11px] font-bold">En curso</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <span class="w-4 h-3 bg-[#ef4444] rounded-xs inline-block"></span>
+          <span class="text-slate-800 text-[11px] font-bold">Pendientes</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <span class="w-4 h-3 bg-[#64748b] rounded-xs inline-block"></span>
+          <span class="text-slate-700 text-[11px]">Prerrequisito requiere de algún curso previo</span>
+        </div>
+      </div>
+
+      <span class="text-[11px] text-slate-500 font-medium">
+        Esta información proviene de tu Kardex y horario
+      </span>
+    </div>
+  </div>
+
+  <!-- TABLERO PRINCIPAL CON CONTENEDOR CON SCROLL HORIZONTAL RESPONSIVE -->
+  <main class="max-w-[1750px] mx-auto w-full px-4 py-2 flex-1 flex flex-col justify-start">
+    
+    <!-- ENVOLTORIO CON SCROLL HORIZONTAL SI LA PANTALLA ES MENOR A 1300px -->
+    <div class="w-full overflow-x-auto pb-3 scroll-horizontal">
+      <div class="min-w-[1280px]">
+        <div class="grid grid-cols-9 gap-1.5 text-center font-black text-slate-800 text-xs py-1">
+          <div>I</div><div>II</div><div>III</div><div>IV</div><div>V</div><div>VI</div><div>VII</div><div>VIII</div><div>IX</div>
+        </div>
+
+        <!-- Matriz de materias única (Filas 1 a 7) -->
+        <div id="malla-matriz-cucei" class="malla-grid-board"></div>
+      </div>
+    </div>
+
+    <!-- 1. BARRA DE COMPETENCIAS -->
+    <div class="w-full my-4">
+      <div class="bg-white border border-slate-200 rounded-xl px-4 py-2 flex flex-wrap items-center justify-center gap-5 text-[11px] font-bold shadow-xs">
+        <div class="flex items-center gap-1.5">
+          <span class="w-3.5 h-3.5 border border-black bg-[#facc15] inline-block"></span>
+          <span class="text-slate-800">Competencias perfil inicial</span>
+        </div>
+        <div class="flex items-center gap-1.5">
+          <span class="w-3.5 h-3.5 border border-black bg-[#0284c7] inline-block"></span>
+          <span class="text-slate-800">Competencias perfil intermedio</span>
+        </div>
+        <div class="flex items-center gap-1.5">
+          <span class="w-3.5 h-3.5 border border-black bg-[#16a34a] inline-block"></span>
+          <span class="text-slate-800">Competencias perfil egreso</span>
+        </div>
+        <div class="flex items-center gap-1.5">
+          <span class="w-3.5 h-3.5 border border-black bg-[#ec4899] inline-block"></span>
+          <span class="text-slate-800">Laboratorios abiertos</span>
+        </div>
+        <div class="flex items-center gap-1.5">
+          <span class="w-3.5 h-3.5 border border-black bg-[#7e22ce] inline-block"></span>
+          <span class="text-slate-800">Requisitos de titulación / egreso</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. SECCIÓN DE MÓDULOS DE ESPECIALIZACIÓN (PARTE BAJA) -->
+    <div class="pt-2 border-t border-slate-200">
+      <div class="flex items-center gap-2 mb-3">
+        <span class="text-sm">🎯</span>
+        <h3 class="text-xs font-black uppercase text-slate-800 tracking-wider">
+          Módulos de Especialización (Trayectorias Optativas)
+        </h3>
+      </div>
+      <div class="w-full overflow-x-auto pb-4 scroll-horizontal">
+        <div id="contenedor-modulos-especializacion" class="grid grid-cols-5 gap-3.5 min-w-[1250px]">
+          <!-- Generado dinámicamente por malla.js -->
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- MODAL HORARIO -->
+  <div id="modal-horario" class="modal-overlay hidden" role="dialog" aria-modal="true">
+    <div class="modal-container-dark w-full max-w-6xl max-h-[90vh]">
+      <div class="p-4 border-b border-slate-800 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <span class="text-2xl">🗓️</span>
+          <div>
+            <h3 class="text-base font-black text-white">Horario de Clases Semanal</h3>
+            <p class="text-xs text-sky-400 font-semibold">Distribución de clases asignadas</p>
+          </div>
+        </div>
+        <button onclick="cerrarModalHorario()" class="text-slate-400 hover:text-white text-xl font-bold p-1">✕</button>
+      </div>
+      <div class="p-4 overflow-x-auto overflow-y-auto flex-1">
+        <div id="grid-dias-horario" class="grid grid-cols-7 gap-3 min-w-[900px]"></div>
+      </div>
+      <div class="px-6 py-3 bg-slate-900/90 border-t border-slate-800 flex items-center justify-between">
+        <span id="total-asignaciones" class="text-xs text-slate-400 font-medium">0 clases</span>
+        <button onclick="cerrarModalHorario()" class="bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold py-1.5 px-5 rounded-xl transition">Cerrar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL PERFIL -->
+  <div id="modal-perfil-usuario" class="modal-overlay hidden" role="dialog" aria-modal="true">
+    <div class="modal-container-dark w-full max-w-md">
+      <div class="p-5 border-b border-slate-800 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-full bg-teal-500/20 border border-teal-500/40 flex items-center justify-center text-teal-400">
+            <i class="fa-solid fa-id-badge text-lg"></i>
+          </div>
+          <div>
+            <h3 class="text-base font-black uppercase tracking-wider">Perfil de Estudiante</h3>
+            <p class="text-xs text-teal-400 font-medium">Información sincronizada</p>
+          </div>
+        </div>
+        <button onclick="cerrarModalPerfil()" class="text-slate-400 hover:text-white text-xl font-bold p-1">✕</button>
+      </div>
+      <div class="p-6 flex flex-col gap-4 text-xs">
+        <div class="modal-section-card">
+          <span class="text-[10px] font-black uppercase text-amber-400 tracking-wider">Datos de la Cuenta</span>
+          <div class="flex justify-between items-center border-b border-slate-800/80 pb-2">
+            <span class="text-slate-400">Usuario:</span>
+            <span id="perfilUsuarioNombre" class="font-bold text-white text-sm">—</span>
+          </div>
+          <div class="flex justify-between items-center">
+            <span class="text-slate-400">Correo:</span>
+            <span id="perfilUsuarioCorreo" class="font-bold text-slate-200">—</span>
+          </div>
+        </div>
+        <div class="modal-section-card">
+          <span class="text-[10px] font-black uppercase text-sky-400 tracking-wider">Datos Académicos (Kárdex)</span>
+          <div class="flex justify-between items-center border-b border-slate-800/80 pb-2">
+            <span class="text-slate-400">Situación:</span>
+            <span id="perfilKardexSituacion" class="font-bold text-slate-400 bg-slate-800/50 px-2 py-0.5 rounded-lg border border-slate-700">Sin archivo</span>
+          </div>
+          <div class="flex justify-between items-center border-b border-slate-800/80 pb-2">
+            <span class="text-slate-400">Admisión:</span>
+            <span id="perfilKardexAdmision" class="font-bold text-slate-200">Sin archivo</span>
+          </div>
+          <div class="flex justify-between items-center">
+            <span class="text-slate-400">Último Ciclo:</span>
+            <span id="perfilKardexUltimoCiclo" class="font-bold text-slate-200">Sin archivo</span>
+          </div>
+        </div>
+      </div>
+      <div class="px-6 py-3.5 bg-slate-900/90 border-t border-slate-800 flex justify-end">
+        <button onclick="cerrarModalPerfil()" class="bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold py-1.5 px-5 rounded-xl transition">Cerrar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL CONFIGURACIÓN CON BOTÓN LIMPIAR -->
+  <div id="modal-configuracion" class="modal-overlay hidden" role="dialog" aria-modal="true">
+    <div class="modal-container-dark w-full max-w-lg">
+      <div class="p-5 border-b border-slate-800 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-full bg-indigo-500/20 border border-indigo-500/40 flex items-center justify-center text-indigo-400">
+            <i class="fa-solid fa-gear text-lg"></i>
+          </div>
+          <div>
+            <h3 class="text-base font-black uppercase tracking-wider">Configuración del Sistema</h3>
+            <p class="text-xs text-indigo-400 font-medium">Gestión de datos de la malla</p>
+          </div>
+        </div>
+        <button onclick="cerrarModalConfiguracion()" class="text-slate-400 hover:text-white text-xl font-bold p-1">✕</button>
+      </div>
+      <div class="p-6 flex flex-col gap-5 text-xs max-h-[75vh] overflow-y-auto">
+        <div class="modal-section-card">
+          <span class="text-[10px] font-black uppercase text-teal-400 tracking-wider">Foto de Perfil</span>
+          <div class="flex items-center gap-4">
+            <div class="relative w-14 h-14 rounded-full bg-slate-800 border-2 border-teal-500/50 flex items-center justify-center overflow-hidden shrink-0">
+              <img id="avatarConfigPreview" class="w-full h-full object-cover hidden" alt="Avatar">
+              <i id="avatarIconoPreview" class="fa-solid fa-user text-xl text-slate-400"></i>
+            </div>
+            <div class="flex flex-col gap-1.5 flex-1">
+              <div class="flex items-center gap-2">
+                <label for="input-avatar-archivo" class="bg-teal-600 hover:bg-teal-500 text-white font-bold text-xs py-1 px-3 rounded-xl cursor-pointer transition">
+                  Subir foto
+                </label>
+                <input type="file" id="input-avatar-archivo" class="hidden" accept="image/*" onchange="procesarFotoPerfil(this)">
+                <button type="button" onclick="eliminarFotoPerfil()" class="bg-slate-800 hover:bg-red-500/20 hover:text-red-400 text-slate-300 font-bold text-xs py-1 px-3 rounded-xl border border-slate-700 transition">
+                  Eliminar
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-section-card">
+          <span class="text-[10px] font-black uppercase text-rose-400 tracking-wider">Gestión de Datos</span>
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="font-bold text-slate-200">Restablecer datos cargados</p>
+              <p class="text-[10px] text-slate-400">Limpia el JSON guardado y reinicia la malla</p>
+            </div>
+            <button onclick="limpiarDatosAcademicos()" class="bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 border border-rose-500/40 text-xs font-bold py-1 px-3 rounded-xl transition cursor-pointer">
+              Limpiar
+            </button>
+          </div>
+        </div>
+      </div>
+      <div class="px-6 py-3.5 bg-slate-900/90 border-t border-slate-800 flex justify-end">
+        <button onclick="cerrarModalConfiguracion()" class="bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold py-1.5 px-5 rounded-xl transition">Listo</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer class="w-full bg-[#111827] border-t border-slate-800 mt-6 select-none">
+    <div class="banner-bg w-full py-2.5 px-6 text-center">
+      <p class="text-xs text-slate-400">
+        MI ESPACIO CUCEI • <span class="font-bold text-white">&lt;VAGRANT/&gt;</span> Licenciatura en Ingeniería en Computación
+      </p>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="planEstudios.js"></script>
+  <script src="malla.js"></script>
+</body>
+</html>

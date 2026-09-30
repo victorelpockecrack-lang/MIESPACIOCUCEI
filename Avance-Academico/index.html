@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Acceso - Portal</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+
+  <style>
+    /* Estilo para el texto <VAGRANT/> respetando el estilo pixel art */
+    .texto-vagrant {
+      font-family: 'Press Start 2P', monospace;
+      color: #38bdf8;
+      text-shadow: 0 0 10px rgba(56, 189, 248, 0.6), 0 0 20px rgba(56, 189, 248, 0.3);
+    }
+
+    /* Clase para encender y mantener iluminado el resplandor */
+    .resplandor-activo {
+      opacity: 1 !important;
+      background-color: rgba(147, 197, 253, 0.35) !important;
+    }
+  </style>
+</head>
+<body class="bg-gradient-to-br from-[#73a5f2] via-[#3b72cb] to-[#08316c] text-white min-h-screen flex items-center justify-center p-4 md:p-8 font-sans selection:bg-blue-900 selection:text-white relative">
+
+  <div class="relative z-10 w-full max-w-5xl bg-white/10 border border-white/25 rounded-3xl shadow-[0_20px_50px_rgba(0,30,80,0.4)] backdrop-blur-md overflow-hidden grid grid-cols-1 md:grid-cols-12 min-h-[580px]">
+
+    <!-- SECCIÓN IZQUIERDA: LOGO Y ANIMACIÓN -->
+    <div id="contenedor-logo-sec" 
+         class="md:col-span-5 lg:col-span-6 bg-blue-950/20 p-6 md:p-8 flex flex-col justify-between items-center text-center border-b md:border-b-0 md:border-r border-white/15 relative">
+      
+      <div class="relative z-10 my-auto">
+        <span class="text-[10px] font-black tracking-widest text-blue-100 uppercase bg-blue-900/40 px-3.5 py-1 rounded-full border border-white/20 backdrop-blur-sm shadow-sm">
+          Plataforma Académica DIVTIC
+        </span>
+        <h2 class="text-xl sm:text-2xl lg:text-3xl font-black text-white uppercase tracking-wider mt-3 drop-shadow-sm">
+          MI ESPACIO CUCEI 
+        </h2>
+      </div>
+
+      <div class="relative z-10 my-auto py-4 flex flex-col justify-center items-center">
+        <div id="resplandor-bg" class="absolute w-48 h-48 sm:w-64 sm:h-64 md:w-72 md:h-72 lg:w-80 lg:h-80 bg-blue-400/0 rounded-full blur-2xl opacity-0 transition-all duration-700 pointer-events-none"></div>
+
+        <div class="relative w-48 h-48 sm:w-64 sm:h-64 md:w-72 md:h-72 lg:w-80 lg:h-80 flex items-center justify-center">
+          <img id="img-animacion" 
+               src="VAGRANT-ANIMACIONES/animacion-vagrant_000.webp" 
+               alt="Animación Vagrant" 
+               class="w-full h-full object-contain pointer-events-none drop-shadow-lg mix-blend-multiply [image-rendering:pixelated]" />
+        </div>
+
+        <div class="texto-vagrant text-sm sm:text-base md:text-lg lg:text-xl tracking-widest mt-2 select-none">
+          &lt;VAGRANT/&gt;
+        </div>
+      </div>
+
+      <div class="relative z-10 text-[10px] text-blue-100/70 font-bold uppercase tracking-widest mt-2 md:mt-0">
+        Centro Universitario de Ciencias Exactas e Ingenierías • CUCEI
+      </div>
+
+    </div>
+
+    <!-- SECCIÓN DERECHA: FORMULARIO -->
+    <div class="md:col-span-7 lg:col-span-6 p-6 sm:p-8 lg:p-12 flex flex-col justify-center bg-blue-950/10">
+
+      <div class="mb-6 text-center md:text-left">
+        <div class="w-12 h-12 sm:w-14 sm:h-14 bg-[#08387c] rounded-full mx-auto md:mx-0 flex items-center justify-center mb-4 shadow-md border border-white/20">
+          <svg class="w-6 h-6 sm:w-7 sm:h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+          </svg>
+        </div>
+        
+        <h3 id="titulo-form" class="text-lg sm:text-xl font-black text-white uppercase tracking-wider">
+          Iniciar Sesión
+        </h3>
+        <p id="subtitulo-form" class="text-xs text-blue-100/80 mt-1">
+          Ingresa con tu usuario o correo para acceder a tu cuenta
+        </p>
+      </div>
+
+      <!-- Alertas de Error y Éxito -->
+      <div id="mensaje-error" class="hidden mb-4 p-3 bg-red-500/20 border border-red-300/40 backdrop-blur-md rounded-xl text-red-100 text-xs font-semibold"></div>
+      <div id="mensaje-exito" class="hidden mb-4 p-3 bg-emerald-500/20 border border-emerald-300/40 backdrop-blur-md rounded-xl text-emerald-100 text-xs font-semibold"></div>
+
+      <form id="form-autenticacion" onsubmit="procesarFormulario(event)" class="flex flex-col gap-4 sm:gap-5">
+
+        <div>
+          <label id="lbl-usuario" for="usuario" class="block text-[11px] font-bold text-blue-100 uppercase tracking-wider mb-1">
+            Usuario o Correo Electrónico
+          </label>
+          <div class="relative flex items-center border-b border-white/60 focus-within:border-white transition-colors py-1.5">
+            <svg class="w-4 h-4 text-blue-100/80 mr-2.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+            </svg>
+            <input type="text" id="usuario" required placeholder="Ej. usuario123 o usuario@gmail.com"
+                   onfocus="focalizarEntrada()"
+                   class="w-full bg-transparent text-xs text-white placeholder-blue-100/40 focus:outline-none">
+          </div>
+        </div>
+
+        <div id="campo-correo" class="hidden">
+          <label for="correo" class="block text-[11px] font-bold text-blue-100 uppercase tracking-wider mb-1">
+            Correo Electrónico
+          </label>
+          <div class="relative flex items-center border-b border-white/60 focus-within:border-white transition-colors py-1.5">
+            <svg class="w-4 h-4 text-blue-100/80 mr-2.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207"></path>
+            </svg>
+            <input type="email" id="correo" placeholder="ejemplo@gmail.com"
+                   onfocus="focalizarEntrada()"
+                   class="w-full bg-transparent text-xs text-white placeholder-blue-100/40 focus:outline-none">
+          </div>
+        </div>
+
+        <div>
+          <div class="flex justify-between items-center mb-1">
+            <label for="password" class="block text-[11px] font-bold text-blue-100 uppercase tracking-wider">
+              Contraseña
+            </label>
+            <!-- Enlace Recuperar Contraseña -->
+            <button type="button" id="btn-olvide-pass" onclick="abrirModalRecuperacion()" class="text-[10px] text-blue-200 hover:underline font-semibold">
+              ¿Olvidaste tu contraseña?
+            </button>
+          </div>
+          <div class="relative flex items-center border-b border-white/60 focus-within:border-white transition-colors py-1.5">
+            <svg class="w-4 h-4 text-blue-100/80 mr-2.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 00-2 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+            </svg>
+            <input type="password" id="password" required placeholder="••••••••"
+                   onfocus="focalizarEntrada()"
+                   oninput="evaluarFuerzaPassword(this.value, 'barra-fuerza', 'texto-fuerza', 'sugerencia-fuerza', true)"
+                   class="w-full bg-transparent text-xs text-white placeholder-blue-100/40 focus:outline-none pr-8">
+            
+            <button type="button" onclick="togglePassword('password', 'icon-eye-off', 'icon-eye-on')" class="absolute right-1 text-blue-100/70 hover:text-white transition focus:outline-none">
+              <svg id="icon-eye-off" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858-5.908a9.04 9.04 0 012.122-.363c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21M3 3l18 18"></path>
+              </svg>
+              <svg id="icon-eye-on" class="w-4 h-4 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+              </svg>
+            </button>
+          </div>
+
+          <!-- Medidor de Fuerza -->
+          <div id="contenedor-medidor-fuerza" class="hidden mt-2.5">
+            <div class="flex justify-between items-center mb-1">
+              <span class="text-[10px] text-blue-100/70 font-semibold uppercase">Fuerza de contraseña</span>
+              <span id="texto-fuerza" class="text-[10px] font-bold text-gray-300">Muy Débil</span>
+            </div>
+            <div class="w-full bg-white/20 h-1.5 rounded-full overflow-hidden">
+              <div id="barra-fuerza" class="h-full w-0 bg-red-500 transition-all duration-300 rounded-full"></div>
+            </div>
+            <p id="sugerencia-fuerza" class="text-[10px] text-blue-200/70 mt-1 italic">
+              Usa una frase larga o combina letras, números y símbolos.
+            </p>
+          </div>
+
+          <p id="hint-password" class="hidden text-[10px] text-blue-200/80 mt-1.5 leading-tight">
+            Mínimo 8 caracteres, al menos una mayúscula, un número y un carácter especial.
+          </p>
+        </div>
+
+        <button type="submit" id="btn-submit"
+                class="w-full mt-3 bg-[#08387c] hover:bg-[#052656] text-white font-black text-xs uppercase py-3.5 rounded-lg tracking-wider transition-all duration-300 shadow-md hover:shadow-lg cursor-pointer">
+          <span id="txt-btn">Ingresar a la Plataforma</span>
+        </button>
+
+      </form>
+
+      <div class="mt-6 sm:mt-8 pt-4 border-t border-white/10 text-center">
+        <p class="text-xs text-blue-100/80">
+          <span id="texto-alternar">¿Aún no tienes cuenta?</span>
+          <button type="button" onclick="alternarModo()" id="btn-alternar" class="text-white hover:underline font-bold ml-1 transition">
+            Regístrate aquí
+          </button>
+        </p>
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- MODAL DE RECUPERACIÓN DE CONTRASEÑA -->
+  <div id="modal-recuperacion" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+    <div class="bg-[#0f2a52] border border-white/20 rounded-2xl shadow-2xl max-w-md w-full p-6 text-white relative">
+      <button onclick="cerrarModalRecuperacion()" class="absolute top-4 right-4 text-blue-200 hover:text-white">
+        ✕
+      </button>
+
+      <h3 class="text-lg font-black uppercase tracking-wider mb-2">Recuperar Contraseña</h3>
+      <p class="text-xs text-blue-100/80 mb-4">
+        Ingresa el correo electrónico asociado a tu cuenta para restablecer tu contraseña.
+      </p>
+
+      <div id="msg-modal-error" class="hidden mb-3 p-2.5 bg-red-500/20 border border-red-300/40 rounded-lg text-red-100 text-xs"></div>
+      <div id="msg-modal-exito" class="hidden mb-3 p-2.5 bg-emerald-500/20 border border-emerald-300/40 rounded-lg text-emerald-100 text-xs"></div>
+
+      <!-- PASO 1: Pedir Correo -->
+      <form id="form-recuperar-correo" onsubmit="solicitarRecuperacion(event)" class="space-y-4">
+        <div>
+          <label for="correo-recuperar" class="block text-[11px] font-bold text-blue-100 uppercase tracking-wider mb-1">
+            Correo Registrado
+          </label>
+          <input type="email" id="correo-recuperar" required placeholder="ejemplo@gmail.com"
+                 class="w-full bg-white/10 border border-white/30 rounded-lg p-2.5 text-xs text-white placeholder-blue-100/40 focus:outline-none focus:border-white">
+        </div>
+
+        <div class="flex justify-end gap-2 pt-2">
+          <button type="button" onclick="cerrarModalRecuperacion()" class="px-4 py-2 text-xs text-blue-200 hover:underline">
+            Cancelar
+          </button>
+          <button type="submit" class="bg-[#38bdf8] hover:bg-[#0284c7] text-blue-950 font-bold text-xs uppercase px-4 py-2 rounded-lg transition">
+            Verificar Correo
+          </button>
+        </div>
+      </form>
+
+      <!-- PASO 2: Nueva Contraseña -->
+      <form id="form-nueva-pass" onsubmit="guardarNuevaPassword(event)" class="hidden space-y-4 mt-2">
+        <div>
+          <label for="nueva-password" class="block text-[11px] font-bold text-blue-100 uppercase tracking-wider mb-1">
+            Nueva Contraseña
+          </label>
+          <div class="relative flex items-center bg-white/10 border border-white/30 rounded-lg px-2.5 py-1.5 focus-within:border-white">
+            <input type="password" id="nueva-password" required placeholder="••••••••"
+                   oninput="evaluarFuerzaPassword(this.value, 'barra-fuerza-modal', 'texto-fuerza-modal', 'sugerencia-fuerza-modal', false)"
+                   class="w-full bg-transparent text-xs text-white placeholder-blue-100/40 focus:outline-none pr-8">
+            <button type="button" onclick="togglePassword('nueva-password', 'icon-eye-off-modal', 'icon-eye-on-modal')" class="absolute right-2 text-blue-100/70 hover:text-white transition focus:outline-none">
+              <svg id="icon-eye-off-modal" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858-5.908a9.04 9.04 0 012.122-.363c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21M3 3l18 18"></path>
+              </svg>
+              <svg id="icon-eye-on-modal" class="w-4 h-4 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+              </svg>
+            </button>
+          </div>
+
+          <!-- Medidor de Fuerza Modal -->
+          <div id="contenedor-medidor-fuerza-modal" class="mt-2.5">
+            <div class="flex justify-between items-center mb-1">
+              <span class="text-[10px] text-blue-100/70 font-semibold uppercase">Fuerza de contraseña</span>
+              <span id="texto-fuerza-modal" class="text-[10px] font-bold text-gray-300">Muy Débil</span>
+            </div>
+            <div class="w-full bg-white/20 h-1.5 rounded-full overflow-hidden">
+              <div id="barra-fuerza-modal" class="h-full w-0 bg-red-500 transition-all duration-300 rounded-full"></div>
+            </div>
+            <p id="sugerencia-fuerza-modal" class="text-[10px] text-blue-200/70 mt-1 italic">
+              Usa una frase larga o combina letras, números y símbolos.
+            </p>
+          </div>
+
+          <p class="text-[10px] text-blue-200/80 mt-1.5 leading-tight">
+            Mínimo 8 caracteres, al menos una mayúscula, un número y un carácter especial.
+          </p>
+        </div>
+
+        <div class="flex justify-end gap-2 pt-2">
+          <button type="submit" class="bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-xs uppercase px-4 py-2 rounded-lg transition">
+            Guardar Nueva Contraseña
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    const totalFotogramas = 102;
+    const duracionTotalMs = 10000;
+    const imagenesPrecargadas = [];
+
+    let imgElemento;
+    let tiempoInicio = null;
+    let animacionEnEjecucion = false;
+    let animacionFinalizada = false;
+
+    window.addEventListener('DOMContentLoaded', () => {
+      imgElemento = document.getElementById('img-animacion');
+
+      for (let i = 0; i < totalFotogramas; i++) {
+        const numPadded = String(i).padStart(3, '0');
+        const img = new Image();
+        img.src = `VAGRANT-ANIMACIONES/animacion-vagrant_${numPadded}.webp`;
+        imagenesPrecargadas.push(img);
+      }
+    });
+
+    function iluminarResplandor() {
+      const elResplandor = document.getElementById('resplandor-bg');
+      if (elResplandor) {
+        elResplandor.classList.add('resplandor-activo');
+      }
+    }
+
+    function focalizarEntrada() {
+      iluminarResplandor();
+      iniciarAnimacion();
+    }
+
+    function animarFotograma(timestamp) {
+      if (!tiempoInicio) tiempoInicio = timestamp;
+      
+      const tiempoTranscurrido = timestamp - tiempoInicio;
+      const progreso = Math.min(tiempoTranscurrido / duracionTotalMs, 1);
+      const fotogramaActual = Math.floor(progreso * (totalFotogramas - 1));
+
+      if (imagenesPrecargadas[fotogramaActual]) {
+        imgElemento.src = imagenesPrecargadas[fotogramaActual].src;
+      }
+
+      if (progreso < 1) {
+        requestAnimationFrame(animarFotograma);
+      } else {
+        animacionEnEjecucion = false;
+        animacionFinalizada = true;
+      }
+    }
+
+    function iniciarAnimacion() {
+      if (animacionFinalizada || animacionEnEjecucion) return;
+
+      animacionEnEjecucion = true;
+      requestAnimationFrame(animarFotograma);
+    }
+
+    function togglePassword(inputId, iconOffId, iconOnId) {
+      const inputPass = document.getElementById(inputId);
+      const eyeOff = document.getElementById(iconOffId);
+      const eyeOn = document.getElementById(iconOnId);
+
+      if (inputPass.type === 'password') {
+        inputPass.type = 'text';
+        eyeOff.classList.add('hidden');
+        eyeOn.classList.remove('hidden');
+      } else {
+        inputPass.type = 'password';
+        eyeOn.classList.add('hidden');
+        eyeOff.classList.remove('hidden');
+      }
+    }
+
+    function evaluarFuerzaPassword(pass, idBarra = 'barra-fuerza', idTexto = 'texto-fuerza', idSugerencia = 'sugerencia-fuerza', verificarModoRegistro = true) {
+      if (verificarModoRegistro && !esModoRegistro) return;
+
+      const barra = document.getElementById(idBarra);
+      const texto = document.getElementById(idTexto);
+      const sugerencia = document.getElementById(idSugerencia);
+
+      if (!barra || !texto || !sugerencia) return;
+
+      if (!pass) {
+        barra.style.width = '0%';
+        texto.innerText = 'Muy Débil';
+        texto.className = 'text-[10px] font-bold text-gray-300';
+        sugerencia.innerText = 'Usa una frase larga o combina letras, números y símbolos.';
+        return;
+      }
+
+      let puntaje = 0;
+      if (pass.length >= 8) puntaje += 1;
+      if (pass.length >= 12) puntaje += 1;
+      if (pass.length >= 16) puntaje += 1;
+
+      if (/[A-Z]/.test(pass)) puntaje += 1;
+      if (/[0-9]/.test(pass)) puntaje += 1;
+      if (/[^A-Za-z0-9]/.test(pass)) puntaje += 1;
+
+      const patronesComunes = [/12345/, /qwerty/i, /password/i, /admin/i, /cucei/i, /vagrant/i];
+      patronesComunes.forEach(patron => {
+        if (patron.test(pass)) puntaje = Math.max(0, puntaje - 2);
+      });
+
+      if (pass.length < 6) puntaje = Math.min(puntaje, 1);
+
+      switch (puntaje) {
+        case 0:
+        case 1:
+          barra.style.width = '20%';
+          barra.className = 'h-full bg-red-500 transition-all duration-300 rounded-full';
+          texto.innerText = 'Muy Débil';
+          texto.className = 'text-[10px] font-bold text-red-300';
+          sugerencia.innerText = 'Muy fácil de adivinar. Agrega más longitud o caracteres variados.';
+          break;
+        case 2:
+          barra.style.width = '40%';
+          barra.className = 'h-full bg-orange-400 transition-all duration-300 rounded-full';
+          texto.innerText = 'Débil';
+          texto.className = 'text-[10px] font-bold text-orange-300';
+          sugerencia.innerText = 'Intenta combinar mayúsculas, símbolos o hacerla más larga.';
+          break;
+        case 3:
+          barra.style.width = '60%';
+          barra.className = 'h-full bg-yellow-400 transition-all duration-300 rounded-full';
+          texto.innerText = 'Aceptable';
+          texto.className = 'text-[10px] font-bold text-yellow-300';
+          sugerencia.innerText = 'Buena contraseña. ¡Un par de caracteres más la harían excelente!';
+          break;
+        case 4:
+          barra.style.width = '80%';
+          barra.className = 'h-full bg-blue-400 transition-all duration-300 rounded-full';
+          texto.innerText = 'Fuerte';
+          texto.className = 'text-[10px] font-bold text-blue-300';
+          sugerencia.innerText = '¡Contraseña robusta y difícil de descifrar!';
+          break;
+        case 5:
+        case 6:
+          barra.style.width = '100%';
+          barra.className = 'h-full bg-emerald-400 transition-all duration-300 rounded-full';
+          texto.innerText = 'Excelente / Muy Segura';
+          texto.className = 'text-[10px] font-bold text-emerald-300';
+          sugerencia.innerText = '¡Excelente elección! Alta entropía de seguridad.';
+          break;
+      }
+    }
+
+    let esModoRegistro = false;
+
+    function limpiarMensajes() {
+      const elErr = document.getElementById('mensaje-error');
+      const elExt = document.getElementById('mensaje-exito');
+      elErr.classList.add('hidden');
+      elExt.classList.add('hidden');
+      elErr.innerText = '';
+      elExt.innerText = '';
+    }
+
+    function mostrarError(mensaje) {
+      limpiarMensajes();
+      const elErr = document.getElementById('mensaje-error');
+      elErr.innerText = mensaje;
+      elErr.classList.remove('hidden');
+    }
+
+    function mostrarExito(mensaje) {
+      limpiarMensajes();
+      const elExt = document.getElementById('mensaje-exito');
+      elExt.innerText = mensaje;
+      elExt.classList.remove('hidden');
+    }
+
+    // ALTERNAR ENTRE INICIAR SESIÓN Y CREAR CUENTA
+    function alternarModo() {
+      esModoRegistro = !esModoRegistro;
+      
+      document.getElementById('form-autenticacion').reset();
+      limpiarMensajes();
+      iluminarResplandor();
+
+      const titulo = document.getElementById('titulo-form');
+      const subtitulo = document.getElementById('subtitulo-form');
+      const lblUsuario = document.getElementById('lbl-usuario');
+      const inputUsuario = document.getElementById('usuario');
+      const campoCorreo = document.getElementById('campo-correo');
+      const inputCorreo = document.getElementById('correo');
+      const hintPassword = document.getElementById('hint-password');
+      const medidorFuerza = document.getElementById('contenedor-medidor-fuerza');
+      const btnOlvide = document.getElementById('btn-olvide-pass');
+      const txtBtn = document.getElementById('txt-btn');
+      const textoAlternar = document.getElementById('texto-alternar');
+      const btnAlternar = document.getElementById('btn-alternar');
+
+      evaluarFuerzaPassword('', 'barra-fuerza', 'texto-fuerza', 'sugerencia-fuerza', true);
+
+      if (esModoRegistro) {
+        titulo.innerText = 'Crear Cuenta';
+        subtitulo.innerText = 'Regístrate para guardar tu avance académico';
+        lblUsuario.innerText = 'Nombre de Usuario';
+        inputUsuario.placeholder = 'Ej. usuario123';
+        campoCorreo.classList.remove('hidden');
+        inputCorreo.setAttribute('required', 'true');
+        hintPassword.classList.remove('hidden');
+        medidorFuerza.classList.remove('hidden');
+        btnOlvide.classList.add('hidden');
+        txtBtn.innerText = 'Registrarse';
+        textoAlternar.innerText = '¿Ya tienes una cuenta?';
+        btnAlternar.innerText = 'Inicia sesión aquí';
+      } else {
+        titulo.innerText = 'Iniciar Sesión';
+        subtitulo.innerText = 'Ingresa con tu usuario o correo para acceder a tu cuenta';
+        lblUsuario.innerText = 'Usuario o Correo Electrónico';
+        inputUsuario.placeholder = 'Ej. usuario123 o usuario@gmail.com';
+        campoCorreo.classList.add('hidden');
+        inputCorreo.removeAttribute('required');
+        hintPassword.classList.add('hidden');
+        medidorFuerza.classList.add('hidden');
+        btnOlvide.classList.remove('hidden');
+        txtBtn.innerText = 'Ingresar a la Plataforma';
+        textoAlternar.innerText = '¿Aún no tienes cuenta?';
+        btnAlternar.innerText = 'Regístrate aquí';
+      }
+    }
+
+    function validarPassword(pass) {
+      const regexPass = /^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&._\-#])[A-Za-z\d@$!\%*?&._\-#]{8,}$/;
+      return regexPass.test(pass);
+    }
+
+    // GESTIÓN DE AUTENTICACIÓN
+    function procesarFormulario(e) {
+      e.preventDefault();
+      limpiarMensajes();
+      iluminarResplandor();
+
+      const pass = document.getElementById('password').value;
+      const inputUsuario = document.getElementById('usuario').value.trim().toLowerCase();
+      const inputCorreo = document.getElementById('correo').value.trim().toLowerCase();
+
+      const listaUsuarios = JSON.parse(localStorage.getItem('cuentasUsuarios') || '[]');
+
+      if (esModoRegistro) {
+        if (!validarPassword(pass)) {
+          mostrarError('La contraseña debe tener al menos 8 caracteres, incluir una letra mayúscula, un número y un carácter especial.');
+          return;
+        }
+
+        const existeUsuario = listaUsuarios.some(u => u.usuario === inputUsuario);
+        const existeCorreo = listaUsuarios.some(u => u.correo === inputCorreo);
+
+        if (existeUsuario) {
+          mostrarError('El nombre de usuario ya está registrado.');
+          return;
+        }
+        if (existeCorreo) {
+          mostrarError('El correo electrónico ya está registrado.');
+          return;
+        }
+
+        listaUsuarios.push({ usuario: inputUsuario, correo: inputCorreo, password: pass });
+        localStorage.setItem('cuentasUsuarios', JSON.stringify(listaUsuarios));
+
+        mostrarExito('¡Cuenta registrada con éxito! Ahora puedes iniciar sesión con tus credenciales.');
+        
+        setTimeout(() => {
+          alternarModo();
+        }, 1500);
+        return;
+      }
+
+      // MODO INICIAR SESIÓN
+      if (!validarPassword(pass)) {
+        mostrarError('Formato de contraseña no válido.');
+        return;
+      }
+
+      const usuarioEncontrado = listaUsuarios.find(u => 
+        (u.usuario === inputUsuario || u.correo === inputUsuario) && u.password === pass
+      );
+
+      if (!usuarioEncontrado) {
+        mostrarError('Usuario/Correo o contraseña incorrectos.');
+        return;
+      }
+
+      localStorage.setItem('usuarioNombre', usuarioEncontrado.usuario);
+      window.location.href = 'dashboardEstudiantil.html';
+    }
+
+    // MODAL Y RECUPERACIÓN DE CONTRASEÑA POR CORREO
+    let usuarioEnRecuperacion = null;
+
+    function abrirModalRecuperacion() {
+      document.getElementById('modal-recuperacion').classList.remove('hidden');
+      document.getElementById('msg-modal-error').classList.add('hidden');
+      document.getElementById('msg-modal-exito').classList.add('hidden');
+      document.getElementById('form-recuperar-correo').reset();
+      document.getElementById('form-nueva-pass').reset();
+      evaluarFuerzaPassword('', 'barra-fuerza-modal', 'texto-fuerza-modal', 'sugerencia-fuerza-modal', false);
+      document.getElementById('form-recuperar-correo').classList.remove('hidden');
+      document.getElementById('form-nueva-pass').classList.add('hidden');
+    }
+
+    function cerrarModalRecuperacion() {
+      document.getElementById('modal-recuperacion').classList.add('hidden');
+    }
+
+    function solicitarRecuperacion(e) {
+      e.preventDefault();
+      const correo = document.getElementById('correo-recuperar').value.trim().toLowerCase();
+      const listaUsuarios = JSON.parse(localStorage.getItem('cuentasUsuarios') || '[]');
+
+      usuarioEnRecuperacion = listaUsuarios.find(u => u.correo === correo);
+
+      const elErr = document.getElementById('msg-modal-error');
+      const elExt = document.getElementById('msg-modal-exito');
+
+      if (!usuarioEnRecuperacion) {
+        elErr.innerText = 'El correo electrónico no se encuentra registrado.';
+        elErr.classList.remove('hidden');
+        elExt.classList.add('hidden');
+        return;
+      }
+
+      elErr.classList.add('hidden');
+      elExt.innerText = 'Correo verificado correctamente. Por favor ingresa tu nueva contraseña.';
+      elExt.classList.remove('hidden');
+
+      document.getElementById('form-recuperar-correo').classList.add('hidden');
+      document.getElementById('form-nueva-pass').classList.remove('hidden');
+    }
+
+    function guardarNuevaPassword(e) {
+      e.preventDefault();
+      const nuevaPass = document.getElementById('nueva-password').value;
+
+      const elErr = document.getElementById('msg-modal-error');
+      const elExt = document.getElementById('msg-modal-exito');
+
+      if (!validarPassword(nuevaPass)) {
+        elErr.innerText = 'La contraseña debe tener al menos 8 caracteres, mayúscula, número y símbolo.';
+        elErr.classList.remove('hidden');
+        return;
+      }
+
+      let listaUsuarios = JSON.parse(localStorage.getItem('cuentasUsuarios') || '[]');
+      listaUsuarios = listaUsuarios.map(u => {
+        if (u.correo === usuarioEnRecuperacion.correo) {
+          return { ...u, password: nuevaPass };
+        }
+        return u;
+      });
+
+      localStorage.setItem('cuentasUsuarios', JSON.stringify(listaUsuarios));
+
+      elErr.classList.add('hidden');
+      elExt.innerText = '¡Contraseña actualizada con éxito! Ya puedes iniciar sesión.';
+
+      setTimeout(() => {
+        cerrarModalRecuperacion();
+      }, 1500);
+    }
+  </script>
+
+</body>
+</html>

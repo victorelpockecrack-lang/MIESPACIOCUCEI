@@ -1,0 +1,943 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard Estudiantil - MI ESPACIO CUCEI</title>
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <!-- Tipografía Google Fonts (Poppins & Press Start 2P) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&family=Press+Start+2P&display=swap" rel="stylesheet">
+
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <!-- PDF.js -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+  <script>
+    if (window['pdfjsLib']) {
+      pdfjsLib.GlobalWorkerOptions.workerSrc =
+        "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+    }
+  </script>
+
+  <!-- ESTILOS INTEGRADOS -->
+  <style>
+    html, body {
+      width: 100%;
+      max-width: 100%;
+      overflow-x: hidden;
+      box-sizing: border-box;
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+    }
+
+    .texto-vagrant {
+      font-family: 'Press Start 2P', monospace;
+      color: #38bdf8;
+      text-shadow: 0 0 10px rgba(56, 189, 248, 0.6), 0 0 20px rgba(56, 189, 248, 0.3);
+    }
+
+    /* BANNER & CABECERA */
+    .banner-bg {
+      background: radial-gradient(circle at 50% 20%, #1e293b 0%, #0f172a 100%);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .banner-bg::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle at 30% 50%, rgba(20, 184, 166, 0.12) 0%, transparent 60%),
+                  radial-gradient(circle at 70% 80%, rgba(59, 130, 246, 0.12) 0%, transparent 60%);
+      pointer-events: none;
+    }
+
+    /* Título estilizado de cada tarjeta */
+    .card-header-title {
+      display: flex;
+      align-items: center;
+      position: relative;
+      font-weight: 700;
+      color: #1e293b;
+    }
+
+    .card-header-title::before {
+      content: '';
+      display: inline-block;
+      width: 18px;
+      height: 3px;
+      background-color: #d97706;
+      margin-right: 8px;
+      border-radius: 2px;
+    }
+
+    .card-header-title::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background-color: #d97706;
+      margin-left: 12px;
+      opacity: 0.6;
+    }
+
+    /* TARJETAS DEL DASHBOARD */
+    .dashboard-card {
+      background-color: #ffffff;
+      border-radius: 1.5rem;
+      padding: 1.5rem;
+      border: 1px solid rgba(226, 232, 240, 0.8);
+      box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      position: relative;
+    }
+
+    @media (min-width: 768px) {
+      .dashboard-card {
+        padding: 2rem;
+      }
+    }
+
+    /* CAJAS DE MÉTRICAS DEL BANNER */
+    .metric-box {
+      padding: 0.25rem 0.75rem;
+      background-color: rgba(30, 41, 59, 0.5);
+      border: 1px solid #334155;
+      border-radius: 0.5rem;
+      text-align: center;
+      min-width: 65px;
+    }
+
+    .metric-title {
+      font-size: 9px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: -0.025em;
+    }
+
+    .metric-value {
+      font-size: 0.875rem;
+      font-weight: 900;
+      line-height: 1;
+      margin-top: 0.25rem;
+    }
+
+    /* MODALES DEL SISTEMA */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background-color: rgba(2, 6, 23, 0.8);
+      backdrop-filter: blur(4px);
+      z-index: 50;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+    }
+
+    .modal-container-dark {
+      background-color: #0b1329;
+      border: 1px solid rgba(51, 65, 85, 0.8);
+      border-radius: 1.5rem;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      color: #ffffff;
+    }
+
+    .modal-section-card {
+      background-color: rgba(15, 23, 42, 0.7);
+      padding: 1rem;
+      border-radius: 1rem;
+      border: 1px solid #1e293b;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    /* MODO ALTO RENDIMIENTO (SIN TRANSICIONES) */
+    body.no-transitions *,
+    body.no-transitions *::before,
+    body.no-transitions *::after {
+      transition: none !important;
+      animation: none !important;
+    }
+  </style>
+</head>
+
+<body class="bg-[#f8fafc] text-gray-800 flex flex-col min-h-screen select-none w-full antialiased">
+
+  <!-- NAVBAR PRINCIPAL SUPERIOR RESPONSIVE IDÉNTICO A MALLA.HTML -->
+  <header class="bg-[#111827] text-white px-4 sm:px-6 py-2.5 sm:py-3 shadow-lg border-b border-slate-800 sticky top-0 z-50">
+    <div class="max-w-[1750px] mx-auto flex items-center justify-between gap-2 sm:gap-4">
+      
+      <!-- LADO IZQUIERDO: Menú + Carrera + Badge ICOM -->
+      <div class="flex items-center gap-2 sm:gap-3 relative min-w-0">
+        <button id="btnMenuPrincipal" onclick="toggleMenuPrincipal()" class="flex items-center gap-1.5 text-slate-300 hover:text-white transition px-2.5 sm:px-3 py-1.5 rounded-lg hover:bg-slate-800 focus:outline-none border border-slate-700/60 text-xs sm:text-sm cursor-pointer shrink-0">
+          <i class="fa-solid fa-bars text-sm sm:text-base"></i>
+          <span class="font-medium hidden sm:inline">Menú</span>
+        </button>
+
+        <!-- MENÚ DESPLEGABLE -->
+        <div id="menuLateralOpciones" class="hidden absolute left-0 top-full mt-2 w-64 bg-[#1e2438] border border-slate-700/70 rounded-2xl shadow-2xl z-50 py-2 overflow-hidden text-sm">
+          <a href="#" class="flex items-center justify-between px-4 py-3 text-white bg-slate-800/80 border-l-4 border-amber-400 font-semibold transition hover:bg-slate-700/60">
+            <div class="flex items-center gap-3">
+              <i class="fa-solid fa-house text-teal-400 text-sm w-5 text-center"></i>
+              <span>Inicio</span>
+            </div>
+          </a>
+          <a href="malla.html" class="flex items-center justify-between px-4 py-3 text-slate-300 hover:text-white hover:bg-slate-800/50 transition">
+            <div class="flex items-center gap-3">
+              <i class="fa-solid fa-sitemap text-teal-400 text-sm w-5 text-center"></i>
+              <span>Malla Curricular Interactiva</span>
+            </div>
+          </a>
+          <a href="horario.html" class="flex items-center justify-between px-4 py-3 text-slate-300 hover:text-white hover:bg-slate-800/50 transition">
+            <div class="flex items-center gap-3">
+              <i class="fa-regular fa-calendar text-teal-400 text-sm w-5 text-center"></i>
+              <span>Mi Horario</span>
+            </div>
+          </a>
+          <a href="#" class="flex items-center justify-between px-4 py-3 text-slate-300 hover:text-white hover:bg-slate-800/50 transition">
+            <div class="flex items-center gap-3">
+              <i class="fa-solid fa-envelope text-teal-400 text-sm w-5 text-center"></i>
+              <span>Simulador de horarios</span>
+            </div>
+          </a>
+        </div>
+          
+        <!-- Selector de Carrera (ancho adaptativo) -->
+        <div class="relative group flex items-center min-w-0">
+          <div class="relative inline-block text-left min-w-0">
+            <button id="careerDropdownBtn" onclick="toggleMenuCarrera()" class="flex items-center justify-between gap-2 bg-slate-800/90 border border-slate-700 hover:border-teal-500 text-white text-xs sm:text-sm px-3 py-1.5 sm:py-2 rounded-xl transition shadow-inner focus:outline-none max-w-[150px] xs:max-w-[200px] sm:max-w-none sm:min-w-[220px]">
+              <i class="fa-solid fa-graduation-cap text-teal-400 text-sm sm:text-base shrink-0"></i>
+              <span id="selectedCareer" class="font-medium tracking-wide text-slate-300 italic truncate">Seleccionar carrera...</span>
+              <i class="fa-solid fa-chevron-down text-[10px] sm:text-xs text-slate-400 shrink-0"></i>
+            </button>
+            
+            <div id="careerMenu" class="hidden absolute left-0 mt-2 w-72 md:w-80 rounded-xl bg-slate-900 border border-slate-700 shadow-2xl z-50 py-2 max-h-80 overflow-y-auto">
+              <div class="px-3 py-1.5 text-[11px] font-semibold text-slate-400 uppercase tracking-wider border-b border-slate-800 mb-1">
+                Selecciona una carrera
+              </div>
+              <button onclick="seleccionarCarrera('Ingeniería Biomédica')" class="w-full text-left px-4 py-2 text-xs md:text-sm text-slate-200 hover:bg-slate-800 hover:text-teal-400 transition">Ingeniería Biomédica</button>
+              <button onclick="seleccionarCarrera('Ingeniería en Computación')" class="w-full text-left px-4 py-2 text-xs md:text-sm text-slate-200 hover:bg-slate-800 hover:text-teal-400 transition font-bold">Ingeniería en Computación</button>
+              <button onclick="seleccionarCarrera('Ingeniería en Electromovilidad y Autotrónica')" class="w-full text-left px-4 py-2 text-xs md:text-sm text-slate-200 hover:bg-slate-800 hover:text-teal-400 transition">Ingeniería en Electromovilidad y Autotrónica</button>
+              <button onclick="seleccionarCarrera('Ingeniería en Electrónica y Sistemas Inteligentes')" class="w-full text-left px-4 py-2 text-xs md:text-sm text-slate-200 hover:bg-slate-800 hover:text-teal-400 transition">Ingeniería en Electrónica y Sistemas Inteligentes</button>
+              <button onclick="seleccionarCarrera('Ingeniería en Mecatrónica Inteligente')" class="w-full text-left px-4 py-2 text-xs md:text-sm text-slate-200 hover:bg-slate-800 hover:text-teal-400 transition">Ingeniería en Mecatrónica Inteligente</button>
+              <button onclick="seleccionarCarrera('Ingeniería Fotónica')" class="w-full text-left px-4 py-2 text-xs md:text-sm text-slate-200 hover:bg-slate-800 hover:text-teal-400 transition">Ingeniería Fotónica</button>
+              <button onclick="seleccionarCarrera('Ingeniería Informática')" class="w-full text-left px-4 py-2 text-xs md:text-sm text-slate-200 hover:bg-slate-800 hover:text-teal-400 transition">Ingeniería Informática</button>
+              <button onclick="seleccionarCarrera('Ingeniería Robótica')" class="w-full text-left px-4 py-2 text-xs md:text-sm text-slate-200 hover:bg-slate-800 hover:text-teal-400 transition">Ingeniería Robótica</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Badge ICOM 2021 -->
+        <div id="badgeCarreraHeader" class="hidden sm:flex items-center gap-1.5 bg-[#0f172a] border border-slate-700/80 px-2.5 py-1.5 rounded-xl shadow-md shrink-0">
+          <span class="text-xs">📊</span>
+          <span class="text-[10px] font-black text-amber-400 uppercase tracking-wider">ICOM 2021</span>
+        </div>
+      </div>
+
+      <!-- LADO DERECHO: Botón "Ver mis clases" + Configuración + Perfil + Salir -->
+      <div class="flex items-center gap-2 sm:gap-3 shrink-0">
+        
+        <!-- Botón Ver mis clases estilo exacto a Imagen 2 / Malla -->
+        <button id="btn-ver-clases" onclick="abrirModalHorario()" class="hidden bg-[#0284c7] hover:bg-[#0369a1] text-white font-bold text-xs sm:text-xs py-2 px-3 sm:px-4 rounded-xl transition-all duration-150 flex items-center gap-2 shadow-md cursor-pointer shrink-0">
+          <i class="fa-regular fa-calendar-days text-sm"></i>
+          <span class="hidden md:inline font-bold">Ver mis clases</span>
+        </button>
+
+        <!-- Configuración -->
+        <button id="btnConfiguracion" onclick="abrirModalConfiguracion()" title="Configuración" class="text-slate-400 hover:text-white transition text-sm p-1.5 rounded-full hover:bg-slate-800 focus:outline-none cursor-pointer">
+          <i class="fa-solid fa-gear"></i>
+        </button>
+
+        <!-- Perfil Usuario -->
+        <button id="btnPerfilUsuario" onclick="abrirModalPerfil()" title="Ver perfil de usuario" class="w-8 h-8 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center text-slate-300 hover:text-white hover:border-teal-500 shadow-sm transition overflow-hidden cursor-pointer shrink-0">
+          <img id="avatarUsuarioNav" class="w-full h-full object-cover hidden" alt="Avatar Usuario">
+          <i id="iconoUsuarioNav" class="fa-solid fa-user text-xs"></i>
+        </button>
+
+        <!-- Salir -->
+        <button onclick="cerrarSesionUsuario()" title="Cerrar sesión" class="text-rose-400 hover:text-rose-300 transition text-sm p-1.5 rounded-full hover:bg-slate-800 cursor-pointer shrink-0">
+          <i class="fa-solid fa-arrow-right-from-bracket"></i>
+        </button>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- BANNER DE BIENVENIDA Y CONTROLES -->
+  <section class="banner-bg text-white py-8 px-6 border-b border-slate-800 shadow-inner">
+    <div class="max-w-[1440px] mx-auto flex flex-col lg:flex-row items-center justify-between gap-6">
+      
+      <div>
+        <h1 id="saludoUsuario" class="text-3xl md:text-4xl font-extrabold tracking-tight text-white mb-2">¡Hola!</h1>
+        <p class="text-slate-300 text-xs md:text-sm max-w-lg">Bienvenido a MI ESPACIO CUCEI. Carga tu Kardex y Horario en PDF para actualizar tus métricas en tiempo real.</p>
+      </div>
+
+      <!-- Controles de Carga y Métricas -->
+      <div id="panelMetricasBanner" class="hidden flex-col items-center lg:items-end gap-3 w-full lg:w-auto">
+        
+        <div class="flex flex-wrap items-center gap-3">
+          <!-- KARDEX -->
+          <div class="flex items-center gap-2 bg-[#0b1329]/80 border border-slate-700/80 px-3 py-1.5 rounded-xl shadow-md">
+            <label for="input-kardex" id="btn-kardex" class="bg-amber-500 hover:bg-amber-600 text-slate-950 font-black text-xs py-1 px-3 rounded-lg cursor-pointer transition">
+              Kardex PDF
+            </label>
+            <input type="file" id="input-kardex" class="hidden" accept=".pdf" onchange="procesarKardexDirecto(this)">
+            <span id="texto-kardex" class="text-xs text-slate-300 max-w-[120px] truncate italic">Sin archivo</span>
+            <button id="btn-quitar-kardex" onclick="quitarKardex()" title="Quitar Kardex" class="hidden text-slate-400 hover:text-red-400 text-xs font-black w-4 h-4 flex items-center justify-center rounded-full hover:bg-red-500/10 transition">✕</button>
+          </div>
+
+          <!-- HORARIO -->
+          <div class="flex items-center gap-2 bg-[#0b1329]/80 border border-slate-700/80 px-3 py-1.5 rounded-xl shadow-md">
+            <label for="input-horario" id="btn-horario" class="bg-sky-500 hover:bg-sky-600 text-slate-950 font-black text-xs py-1 px-3 rounded-lg cursor-pointer transition">
+              Horario PDF
+            </label>
+            <input type="file" id="input-horario" class="hidden" accept=".pdf">
+            <span id="texto-horario" class="text-xs text-slate-300 max-w-[120px] truncate italic">Sin archivo</span>
+            <button id="btn-quitar-horario" onclick="quitarHorario()" title="Quitar Horario" class="hidden text-slate-400 hover:text-red-400 text-xs font-black w-4 h-4 flex items-center justify-center rounded-full hover:bg-red-500/10 transition">✕</button>
+          </div>
+
+          <!-- Botón Ver mis clases funcional -->
+          <button id="btn-ver-clases" onclick="abrirModalHorario()" class="hidden bg-sky-600 hover:bg-sky-500 text-white font-bold text-xs py-1.5 px-3.5 rounded-xl transition flex items-center gap-1.5 shadow-md cursor-pointer">
+            📅 <span>Ver mis clases</span>
+          </button>
+        </div>
+
+        <!-- Cajas de Métricas -->
+        <div class="flex items-center flex-wrap gap-2 bg-[#0b1329]/70 p-1.5 rounded-2xl border border-slate-700/80 shadow-md">
+          <div class="metric-box">
+            <p class="metric-title text-emerald-400">Aprobadas</p>
+            <p id="total-aprobadas" class="metric-value text-emerald-400">0</p>
+          </div>
+          <div class="metric-box">
+            <p class="metric-title text-orange-400">En Curso</p>
+            <p id="total-en-curso" class="metric-value text-orange-400">0</p>
+          </div>
+          <div class="metric-box">
+            <p class="metric-title text-slate-400">Pendientes</p>
+            <p id="materias-pendientes" class="metric-value text-slate-200">50</p>
+          </div>
+          <div class="metric-box min-w-[70px]">
+            <p class="metric-title text-indigo-300">Avance</p>
+            <p id="porcentaje-avance" class="metric-value text-indigo-300">0%</p>
+          </div>
+          <div class="metric-box">
+            <p class="metric-title text-violet-300">Promedio</p>
+            <p id="promedio-general" class="metric-value text-violet-300">—</p>
+          </div>
+          <div class="metric-box min-w-[90px]">
+            <p class="metric-title text-sky-300">Créditos</p>
+            <p id="total-creditos" class="metric-value text-sky-300 text-xs">0 / 394 C</p>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ESTADO DEFECTO -->
+  <main id="vistaDashboardDefecto" class="max-w-[1440px] mx-auto px-6 md:px-8 py-12 w-full flex-1 flex flex-col items-center justify-center">
+    <div class="bg-white rounded-3xl shadow-sm border border-slate-200/80 p-10 md:p-14 text-center max-w-xl w-full">
+      <div class="w-16 h-16 bg-slate-100 rounded-2xl flex items-center justify-center text-slate-600 mx-auto mb-5 shadow-inner">
+        <i class="fa-solid fa-chart-pie text-2xl"></i>
+      </div>
+      <h2 class="text-xl font-bold text-slate-800 mb-2">Panel Estudiantil Principal</h2>
+      <p class="text-slate-500 text-xs md:text-sm leading-relaxed mb-6">Selecciona una carrera disponible en el menú superior para cargar el panel de métricas y gráficos.</p>
+    </div>
+  </main>
+
+  <!-- CONTENEDOR DE TARJETAS DE CARRERA (ICOM) -->
+  <main id="panelTarjetasCarrera" class="hidden max-w-[1440px] mx-auto w-full px-6 md:px-8 py-8 flex-1">
+    
+    <!-- 1. SECCIÓN DE REQUISITOS DE EGRESO (COLOCADA ARRIBA DE LAS GRÁFICAS) -->
+    <div class="mb-8 bg-white rounded-3xl p-6 md:p-8 shadow-sm border border-slate-200/80">
+      <div class="flex items-center justify-between border-b border-slate-100 pb-4 mb-6">
+        <div>
+          <h3 class="card-header-title text-lg font-bold">Requisitos de Titulación y Egreso</h3>
+          <p class="text-xs text-slate-500 mt-1">Secuencia oficial según el Plan de Estudios ICOM 2021 (Semestres V a IX).</p>
+        </div>
+        <span class="text-[11px] font-bold bg-amber-50 text-amber-700 border border-amber-200 px-3 py-1 rounded-xl">
+          Obligatorios ICOM 2021
+        </span>
+      </div>
+
+      <!-- Alerta dinámica -->
+      <div id="alertaRequisitosChecklist" class="hidden mb-4 p-3 rounded-2xl bg-rose-50 border border-rose-200 text-rose-700 text-xs font-semibold flex items-center gap-2">
+        <i class="fa-solid fa-triangle-exclamation text-rose-500 text-base"></i>
+        <span id="textoAlertaRequisitos"></span>
+      </div>
+
+      <!-- Cuadrícula en secuencia: 4 columnas -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 items-stretch">
+        
+        <!-- COLUMNA 1: FORMACIÓN INTEGRAL -->
+        <div class="flex flex-col justify-between p-4 rounded-2xl bg-slate-50 border border-slate-200/80 hover:border-purple-400 transition">
+          <div class="flex justify-between items-center text-[11px] font-black text-slate-700 pb-2 border-b border-slate-200/60">
+            <span>64H</span>
+            <span class="text-purple-700 bg-purple-100 px-1.5 py-0.5 rounded">4C</span>
+          </div>
+
+          <div class="my-auto py-5 flex items-start gap-3">
+            <input type="checkbox" id="check-fi" onclick="gestionarCheckFI(this)" class="mt-1 w-4 h-4 text-purple-600 rounded border-slate-300 focus:ring-purple-500 cursor-pointer">
+            <label for="check-fi" class="cursor-pointer">
+              <h4 class="font-black text-slate-800 text-xs uppercase tracking-tight">Formación Integral</h4>
+              <p class="text-[11px] text-slate-500 mt-1 leading-snug">¿Ya cumpliste con tus 64 horas de Formación Integral?</p>
+            </label>
+          </div>
+
+          <div class="w-full h-2.5 bg-purple-700 rounded-full mt-2"></div>
+        </div>
+
+        <!-- COLUMNA 2: CASILLA DUAL (SERVICIO SOCIAL / INGLÉS) -->
+        <div class="flex flex-col justify-between p-4 rounded-2xl bg-slate-50 border border-slate-200/80 hover:border-purple-400 transition">
+          <div class="flex flex-col gap-3">
+            <!-- Servicio Social -->
+            <div class="flex items-start gap-3 pb-3 border-b border-slate-200/60">
+              <input type="checkbox" id="check-ss" onclick="return gestionarCheckSS(event, this)" class="mt-1 w-4 h-4 text-purple-600 rounded border-slate-300 focus:ring-purple-500 cursor-pointer">
+              <label for="check-ss" class="cursor-pointer flex-1">
+                <div class="flex items-center justify-between">
+                  <h4 class="font-black text-slate-800 text-xs uppercase tracking-tight">Servicio Social</h4>
+                  <span class="text-[10px] font-bold text-slate-400 ml-2">480H</span>
+                </div>
+                <p class="text-[10px] text-slate-500 mt-0.5 leading-snug">Requiere el 60% de los créditos.</p>
+              </label>
+            </div>
+
+            <!-- Acreditación Inglés -->
+            <div class="flex items-start gap-3 pt-1">
+              <input type="checkbox" id="check-ingles" onclick="return gestionarCheckIngles(event, this)" class="mt-1 w-4 h-4 text-purple-600 rounded border-slate-300 focus:ring-purple-500 cursor-pointer">
+              <label for="check-ingles" class="cursor-pointer flex-1">
+                <div class="flex items-center justify-between">
+                  <h4 class="font-black text-slate-800 text-xs uppercase tracking-tight">Acreditación Inglés</h4>
+                  <span class="text-[9px] font-black text-purple-700 bg-purple-50 border border-purple-200 px-1 rounded ml-1">NIVEL B1</span>
+                </div>
+                <p class="text-[10px] text-slate-500 mt-0.5 leading-snug">Certificado con 1 año de validez vigente.</p>
+              </label>
+            </div>
+          </div>
+
+          <div class="w-full h-2.5 bg-purple-700 rounded-full mt-3"></div>
+        </div>
+
+        <!-- COLUMNA 3: PRÁCTICAS PROFESIONALES -->
+        <div class="flex flex-col justify-between p-4 rounded-2xl bg-slate-50 border border-slate-200/80 hover:border-purple-400 transition">
+          <div class="flex justify-between items-center text-[11px] font-black text-slate-700 pb-2 border-b border-slate-200/60">
+            <span>300H</span>
+            <span class="text-purple-700 bg-purple-100 px-1.5 py-0.5 rounded">6C</span>
+          </div>
+
+          <div class="my-auto py-5 flex items-start gap-3">
+            <input type="checkbox" id="check-pp" onclick="return gestionarCheckPP(event, this)" class="mt-1 w-4 h-4 text-purple-600 rounded border-slate-300 focus:ring-purple-500 cursor-pointer">
+            <label for="check-pp" class="cursor-pointer">
+              <h4 class="font-black text-slate-800 text-xs uppercase tracking-tight">Prácticas Profesionales</h4>
+              <p class="text-[11px] text-slate-500 mt-1 leading-snug">¿Completaste tus prácticas? (Requiere el 80% de los créditos).</p>
+            </label>
+          </div>
+
+          <div class="w-full h-2.5 bg-purple-700 rounded-full mt-2"></div>
+        </div>
+
+        <!-- COLUMNA 4: CASILLA DUAL (PROYECTO MODULAR / EGEL) -->
+        <div class="flex flex-col justify-between p-4 rounded-2xl bg-slate-50 border border-slate-200/80 hover:border-purple-400 transition">
+          <div class="flex flex-col gap-3">
+            <!-- Proyecto Modular -->
+            <div class="flex items-start gap-3 pb-3 border-b border-slate-200/60">
+              <input type="checkbox" id="check-pm" onclick="return gestionarCheckPM(event, this)" class="mt-1 w-4 h-4 text-purple-600 rounded border-slate-300 focus:ring-purple-500 cursor-pointer">
+              <label for="check-pm" class="cursor-pointer flex-1">
+                <h4 class="font-black text-slate-800 text-xs uppercase tracking-tight">Proyecto Modular</h4>
+                <p class="text-[10px] text-slate-500 mt-0.5 leading-snug">Requiere haber hecho los 3 seminarios previos.</p>
+              </label>
+            </div>
+
+            <!-- Capacitación EGEL -->
+            <div class="flex items-start gap-3 pt-1">
+              <input type="checkbox" id="check-egel" onclick="return gestionarCheckEGEL(event, this)" class="mt-1 w-4 h-4 text-purple-600 rounded border-slate-300 focus:ring-purple-500 cursor-pointer">
+              <label for="check-egel" class="cursor-pointer flex-1">
+                <h4 class="font-black text-slate-800 text-xs uppercase tracking-tight">Capacitación EGEL</h4>
+                <p class="text-[10px] text-slate-500 mt-0.5 leading-snug">Requiere más del 90% de los créditos.</p>
+              </label>
+            </div>
+          </div>
+
+          <div class="w-full h-2.5 bg-purple-700 rounded-full mt-3"></div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- 2. FILA 1: CRÉDITOS REALES (HORARIO/SEMESTRES, AVANCE GENERAL Y PROMEDIO) -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-stretch">
+      
+      <!-- Tarjeta 1: Créditos por Semestre -->
+      <div class="dashboard-card">
+        <div>
+          <h3 class="card-header-title text-base mb-2">Créditos por Semestre</h3>
+          <p class="text-xs font-medium text-slate-500">
+            Avance por ciclo curricular: 
+            <span id="semestresCompletosTexto" class="font-bold text-teal-600 text-sm ml-1">0 de 9 listos</span>
+          </p>
+        </div>
+
+        <div class="my-2 w-full h-52 relative flex flex-col items-center justify-center">
+          <canvas id="chartCreditosSemestre"></canvas>
+        </div>
+
+        <div class="pt-2 border-t border-slate-100 flex items-center justify-center gap-1.5 text-center">
+          <span class="w-3.5 h-3.5 rounded-full bg-teal-600 text-white flex items-center justify-center text-[9px] font-bold">%</span>
+          <p class="text-[11px] text-slate-500 italic">Pasa el cursor sobre cada barra para ver créditos obtenidos vs totales.</p>
+        </div>
+      </div>
+
+      <!-- Tarjeta 2: Avance Académico -->
+      <div class="dashboard-card">
+        <div>
+          <h3 class="card-header-title text-base mb-2">Avance académico</h3>
+          <p class="text-xs font-medium text-slate-500">
+            Porcentaje de créditos adquiridos: 
+            <span id="porcentajeTexto" class="font-extrabold text-slate-800 text-base ml-1">0.00%</span>
+          </p>
+        </div>
+
+        <div class="my-3 flex flex-col items-center justify-center relative">
+          <div class="w-44 h-44 relative">
+            <canvas id="chartAvance"></canvas>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-3 gap-2 text-center pt-3 border-t border-slate-100">
+          <div>
+            <p class="text-[11px] font-semibold text-slate-400">Requeridos</p>
+            <p id="creditosRequeridos" class="text-sm font-bold text-slate-700 mt-0.5">394</p>
+          </div>
+          <div>
+            <p class="text-[11px] font-semibold text-slate-400">Obtenidos</p>
+            <p id="creditosObtenidos" class="text-sm font-bold text-slate-700 mt-0.5">0</p>
+          </div>
+          <div>
+            <p class="text-[11px] font-semibold text-slate-400">Faltantes</p>
+            <p id="creditosFaltantes" class="text-sm font-bold text-slate-700 mt-0.5">394</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tarjeta 3: Promedio -->
+      <div class="dashboard-card">
+        <div>
+          <h3 class="card-header-title text-base mb-2">Promedio</h3>
+          <p class="text-xs font-medium text-slate-500">
+            Promedio general: 
+            <span id="promedioCardTexto" class="font-black text-slate-800 text-xl ml-1">—</span>
+          </p>
+        </div>
+
+        <div class="my-2 w-full h-52 relative flex flex-col items-center justify-center">
+          <canvas id="chartPromedioCiclos"></canvas>
+        </div>
+
+        <div class="pt-2 border-t border-slate-100 flex items-center justify-center gap-1.5 text-center">
+          <span class="w-3.5 h-3.5 rounded-full bg-rose-600 text-white flex items-center justify-center text-[9px] font-bold">?</span>
+          <p class="text-[11px] text-slate-500 italic">Interactúa con la gráfica para obtener información detallada.</p>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- 3. FILA 2: AVANCE POR CICLO ESCOLAR Y ÁREAS DE FORMACIÓN -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch mt-6">
+      
+      <!-- Tarjeta A: Avance de Créditos por Ciclo Escolar -->
+      <div class="dashboard-card">
+        <div>
+          <h3 class="card-header-title text-base mb-2">Avance por Ciclo Escolar</h3>
+          <p class="text-xs font-medium text-slate-500">
+            Créditos obtenidos por calendario: 
+            <span id="textoAvanceCiclos" class="font-bold text-teal-600 text-sm ml-1">0 C en el último ciclo</span>
+          </p>
+        </div>
+
+        <div class="my-2 w-full h-56 relative flex flex-col items-center justify-center">
+          <canvas id="chartAvanceCiclos"></canvas>
+        </div>
+
+        <div class="pt-2 border-t border-slate-100 flex items-center justify-center gap-1.5 text-center">
+          <span class="w-3.5 h-3.5 rounded-full bg-teal-600 text-white flex items-center justify-center text-[9px] font-bold">📈</span>
+          <p class="text-[11px] text-slate-500 italic">Muestra el incremento progresivo de créditos por ciclo escolar.</p>
+        </div>
+      </div>
+
+      <!-- Tarjeta B: Distribución por Área de Formación -->
+      <div class="dashboard-card">
+        <div>
+          <h3 class="card-header-title text-base mb-2">Créditos por Área de Formación</h3>
+          <p class="text-xs font-medium text-slate-500">
+            Clasificación oficial según malla curricular:
+            <span id="textoCreditosCategorias" class="font-bold text-slate-700 text-sm ml-1">Progreso global</span>
+          </p>
+        </div>
+
+        <div class="my-2 w-full h-56 relative flex flex-col items-center justify-center">
+          <canvas id="chartAreasFormacion"></canvas>
+        </div>
+
+        <div class="pt-2 border-t border-slate-100 flex items-center justify-center gap-1.5 text-center">
+          <span class="w-3.5 h-3.5 rounded-full bg-purple-600 text-white flex items-center justify-center text-[9px] font-bold">🎯</span>
+          <p class="text-[11px] text-slate-500 italic">Amarillo: Básica | Azul: Intermedia | Verde Oscuro: Egreso | Rosa: Laboratorios | Morado: Requisitos</p>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- 4. FILA 3: SIMULACIÓN PROYECTADA -->
+    <div class="mt-8 bg-white rounded-3xl p-6 md:p-8 shadow-sm border border-slate-200/80">
+      <div class="flex items-center justify-between border-b border-slate-100 pb-4 mb-6">
+        <div>
+          <h3 class="card-header-title text-lg font-bold">Simulación de Acreditación (Ciclo en Curso)</h3>
+          <p class="text-xs text-slate-500 mt-1">Proyección de avance en caso de acreditar satisfactoriamente todas las materias registradas en tu horario actual.</p>
+        </div>
+        <span class="text-[11px] font-bold bg-sky-50 text-sky-700 border border-sky-200 px-3 py-1 rounded-xl">
+          Simulador Proyectivo
+        </span>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-center">
+        <!-- Créditos en Curso -->
+        <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200/80 flex flex-col justify-between">
+          <span class="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Carga en Horario</span>
+          <div class="my-2">
+            <span id="sim-creditos-curso" class="text-2xl font-black text-amber-500">0 C</span>
+            <span id="sim-materias-curso" class="text-xs text-slate-400 block font-medium">0 materias en curso</span>
+          </div>
+          <div class="w-full h-1.5 bg-amber-400 rounded-full"></div>
+        </div>
+
+        <!-- Créditos Proyectados -->
+        <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200/80 flex flex-col justify-between">
+          <span class="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Créditos Proyectados</span>
+          <div class="my-2">
+            <span id="sim-creditos-totales" class="text-2xl font-black text-teal-600">0 / 394 C</span>
+            <span class="text-xs text-slate-400 block font-medium">Al acreditar este ciclo</span>
+          </div>
+          <div class="w-full h-1.5 bg-teal-500 rounded-full"></div>
+        </div>
+
+        <!-- Avance Proyectado -->
+        <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200/80 flex flex-col justify-between">
+          <span class="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Avance Proyectado</span>
+          <div class="my-2">
+            <span id="sim-porcentaje-avance" class="text-2xl font-black text-indigo-600">0.00%</span>
+            <span id="sim-incremento-avance" class="text-xs text-emerald-600 block font-bold">+0.00% de incremento</span>
+          </div>
+          <div class="w-full h-1.5 bg-indigo-500 rounded-full"></div>
+        </div>
+
+        <!-- Faltantes Restantes -->
+        <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200/80 flex flex-col justify-between">
+          <span class="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Faltantes Estimados</span>
+          <div class="my-2">
+            <span id="sim-creditos-faltantes" class="text-2xl font-black text-rose-500">394 C</span>
+            <span class="text-xs text-slate-400 block font-medium">Restantes para titulación</span>
+          </div>
+          <div class="w-full h-1.5 bg-rose-400 rounded-full"></div>
+        </div>
+      </div>
+
+      <!-- GRÁFICAS DE SIMULACIÓN PROYECTADA -->
+      <div class="mt-8 pt-6 border-t border-slate-200/80">
+        <div class="mb-4">
+          <h4 class="font-extrabold text-slate-800 text-sm">Visualización Gráfica Proyectada</h4>
+          <p class="text-[11px] text-slate-500">Comportamiento estimado de tus métricas si apruebas las materias de tu horario.</p>
+        </div>
+
+        <!-- Fila 1 Simulación -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch mb-6">
+          <!-- Dona de Avance Proyectado -->
+          <div class="p-5 rounded-2xl bg-slate-50 border border-slate-200/80 flex flex-col justify-between">
+            <div class="flex justify-between items-center mb-2">
+              <span class="text-xs font-bold text-slate-700">Avance Total Proyectado</span>
+              <span id="simPorcentajeDonaTexto" class="text-xs font-black text-teal-600">0.00%</span>
+            </div>
+            <div class="w-full h-48 relative flex items-center justify-center my-auto">
+              <canvas id="chartSimAvanceDona"></canvas>
+            </div>
+            <div class="grid grid-cols-3 gap-2 text-center pt-3 border-t border-slate-200/60 text-[11px]">
+              <div>
+                <span class="text-slate-400 block font-semibold">Requeridos</span>
+                <span class="font-bold text-slate-700">394 C</span>
+              </div>
+              <div>
+                <span class="text-slate-400 block font-semibold">Proyectados</span>
+                <span id="simObtenidosDonaTexto" class="font-bold text-teal-600">0 C</span>
+              </div>
+              <div>
+                <span class="text-slate-400 block font-semibold">Faltantes</span>
+                <span id="simFaltantesDonaTexto" class="font-bold text-slate-700">394 C</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Barras por Semestre Proyectadas -->
+          <div class="p-5 rounded-2xl bg-slate-50 border border-slate-200/80 flex flex-col justify-between">
+            <div class="flex justify-between items-center mb-2">
+              <span class="text-xs font-bold text-slate-700">Créditos por Semestre Proyectados</span>
+              <span id="simSemestresTexto" class="text-xs font-bold text-indigo-600">0 de 9 listos</span>
+            </div>
+            <div class="w-full h-52 relative flex items-center justify-center">
+              <canvas id="chartSimSemestres"></canvas>
+            </div>
+            <p class="text-[10px] text-slate-400 text-center pt-2 border-t border-slate-200/60 italic">Incluye materias en curso completando semestres.</p>
+          </div>
+        </div>
+
+        <!-- Fila 2 Simulación -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
+          <!-- Área de Avance por Ciclo Proyectado -->
+          <div class="p-5 rounded-2xl bg-slate-50 border border-slate-200/80 flex flex-col justify-between">
+            <div class="flex justify-between items-center mb-2">
+              <span class="text-xs font-bold text-slate-700">Curva de Avance por Ciclo Proyectada</span>
+              <span id="simCicloActualTexto" class="text-xs font-bold text-teal-600">Proyección ciclo en curso</span>
+            </div>
+            <div class="w-full h-52 relative flex items-center justify-center">
+              <canvas id="chartSimCiclos"></canvas>
+            </div>
+            <p class="text-[10px] text-slate-400 text-center pt-2 border-t border-slate-200/60 italic">Suma los créditos del horario al ciclo 2026-B.</p>
+          </div>
+
+          <!-- Áreas de Formación Proyectadas -->
+          <div class="p-5 rounded-2xl bg-slate-50 border border-slate-200/80 flex flex-col justify-between">
+            <div class="flex justify-between items-center mb-2">
+              <span class="text-xs font-bold text-slate-700">Áreas de Formación Proyectadas</span>
+              <span class="text-xs font-bold text-slate-500">Con horario acreditado</span>
+            </div>
+            <div class="w-full h-52 relative flex items-center justify-center">
+              <canvas id="chartSimAreasFormacion"></canvas>
+            </div>
+            <p class="text-[10px] text-slate-400 text-center pt-2 border-t border-slate-200/60 italic">Incremento en los bloques curriculares correspondientes.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- MODAL DEL HORARIO (CON IDS EXACTOS SINCRONIZADOS) -->
+  <div id="modal-horario" class="modal-overlay hidden" role="dialog" aria-modal="true">
+    <div class="modal-container-dark w-full max-w-6xl max-h-[90vh]">
+      <div class="p-4 border-b border-slate-800 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <span class="text-2xl">🗓️</span>
+          <div>
+            <h3 class="text-base font-black text-white">Horario de Clases Semanal</h3>
+            <p class="text-xs text-sky-400 font-semibold">Distribución de clases asignadas</p>
+          </div>
+        </div>
+        <button onclick="cerrarModalHorario()" class="text-slate-400 hover:text-white text-xl font-bold p-1 cursor-pointer">✕</button>
+      </div>
+
+      <div class="p-4 overflow-x-auto overflow-y-auto flex-1">
+        <div id="grid-dias-horario" class="grid grid-cols-7 gap-3 min-w-[900px]"></div>
+      </div>
+
+      <div class="px-6 py-3 bg-slate-900/90 border-t border-slate-800 flex items-center justify-between">
+        <span id="total-asignaciones" class="text-xs text-slate-400 font-medium">0 clases a la semana</span>
+        <button onclick="cerrarModalHorario()" class="bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold py-1.5 px-5 rounded-xl transition cursor-pointer">Cerrar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL DE DATOS DE USUARIO -->
+  <div id="modal-perfil-usuario" class="modal-overlay hidden" role="dialog" aria-modal="true">
+    <div class="modal-container-dark w-full max-w-md">
+      <div class="p-5 border-b border-slate-800 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-full bg-teal-500/20 border border-teal-500/40 flex items-center justify-center text-teal-400">
+            <i class="fa-solid fa-id-badge text-lg"></i>
+          </div>
+          <div>
+            <h3 class="text-base font-black uppercase tracking-wider">Perfil de Estudiante</h3>
+            <p class="text-xs text-teal-400 font-medium">Información de cuenta y Kárdex</p>
+          </div>
+        </div>
+        <button onclick="cerrarModalPerfil()" class="text-slate-400 hover:text-white text-xl font-bold p-1 cursor-pointer">✕</button>
+      </div>
+
+      <div class="p-6 flex flex-col gap-4 text-xs">
+        <div class="modal-section-card">
+          <span class="text-[10px] font-black uppercase text-amber-400 tracking-wider">Datos de la Cuenta</span>
+          <div class="flex justify-between items-center border-b border-slate-800/80 pb-2">
+            <span class="text-slate-400">Usuario:</span>
+            <span id="perfilUsuarioNombre" class="font-bold text-white text-sm">—</span>
+          </div>
+          <div class="flex justify-between items-center border-b border-slate-800/80 pb-2">
+            <span class="text-slate-400">Correo:</span>
+            <span id="perfilUsuarioCorreo" class="font-bold text-slate-200">—</span>
+          </div>
+          <div class="flex justify-between items-center pt-0.5">
+            <span class="text-slate-400">Contraseña:</span>
+            <div class="flex items-center gap-2">
+              <span id="perfilUsuarioPassword" class="font-mono font-bold tracking-widest text-slate-300">••••••••</span>
+              <button type="button" onclick="toggleVerPasswordPerfil()" class="text-slate-400 hover:text-teal-400 transition p-1 cursor-pointer">
+                <i id="iconoOjoPerfil" class="fa-solid fa-eye-slash text-xs"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-section-card">
+          <span class="text-[10px] font-black uppercase text-sky-400 tracking-wider">Datos Académicos (Kárdex)</span>
+          <div class="flex justify-between items-center border-b border-slate-800/80 pb-2">
+            <span class="text-slate-400">Situación:</span>
+            <span id="perfilKardexSituacion" class="font-bold text-slate-400 bg-slate-800/50 px-2 py-0.5 rounded-lg border border-slate-700">Sin archivo</span>
+          </div>
+          <div class="flex justify-between items-center border-b border-slate-800/80 pb-2">
+            <span class="text-slate-400">Admisión:</span>
+            <span id="perfilKardexAdmision" class="font-bold text-slate-200">Sin archivo</span>
+          </div>
+          <div class="flex justify-between items-center">
+            <span class="text-slate-400">Último Ciclo:</span>
+            <span id="perfilKardexUltimoCiclo" class="font-bold text-slate-200">Sin archivo</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="px-6 py-3.5 bg-slate-900/90 border-t border-slate-800 flex justify-end">
+        <button onclick="cerrarModalPerfil()" class="bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold py-1.5 px-5 rounded-xl transition cursor-pointer">Cerrar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL DE CONFIGURACIÓN -->
+  <div id="modal-configuracion" class="modal-overlay hidden" role="dialog" aria-modal="true">
+    <div class="modal-container-dark w-full max-w-lg">
+      <div class="p-5 border-b border-slate-800 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-full bg-indigo-500/20 border border-indigo-500/40 flex items-center justify-center text-indigo-400">
+            <i class="fa-solid fa-gear text-lg"></i>
+          </div>
+          <div>
+            <h3 class="text-base font-black uppercase tracking-wider">Configuración del Sistema</h3>
+            <p class="text-xs text-indigo-400 font-medium">Personalización de espacio y cuenta</p>
+          </div>
+        </div>
+        <button onclick="cerrarModalConfiguracion()" class="text-slate-400 hover:text-white text-xl font-bold p-1 cursor-pointer">✕</button>
+      </div>
+
+      <div class="p-6 flex flex-col gap-5 text-xs max-h-[75vh] overflow-y-auto">
+        <!-- FOTO DE PERFIL -->
+        <div class="modal-section-card">
+          <span class="text-[10px] font-black uppercase text-teal-400 tracking-wider">Foto de Perfil</span>
+          <div class="flex items-center gap-4">
+            <div class="relative w-16 h-16 rounded-full bg-slate-800 border-2 border-teal-500/50 flex items-center justify-center overflow-hidden shadow-inner shrink-0">
+              <img id="avatarConfigPreview" class="w-full h-full object-cover hidden" alt="Vista previa avatar">
+              <i id="avatarIconoPreview" class="fa-solid fa-user text-2xl text-slate-400"></i>
+            </div>
+            
+            <div class="flex flex-col gap-1.5 flex-1">
+              <div class="flex items-center gap-2">
+                <label for="input-avatar-archivo" class="bg-teal-600 hover:bg-teal-500 text-white font-bold text-xs py-1.5 px-3 rounded-xl cursor-pointer transition shadow-sm">
+                  Subir foto
+                </label>
+                <input type="file" id="input-avatar-archivo" class="hidden" accept="image/*" onchange="procesarFotoPerfil(this)">
+                
+                <button type="button" onclick="eliminarFotoPerfil()" class="bg-slate-800 hover:bg-red-500/20 hover:text-red-400 text-slate-300 font-bold text-xs py-1.5 px-3 rounded-xl border border-slate-700 transition cursor-pointer">
+                  Eliminar
+                </button>
+              </div>
+              <p class="text-[10px] text-slate-400">Formatos recomendados: PNG o JPG (máximo 2 MB).</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- PREFERENCIAS VISUALES -->
+        <div class="modal-section-card">
+          <span class="text-[10px] font-black uppercase text-amber-400 tracking-wider">Interfaz y Rendimiento</span>
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="font-bold text-slate-200">Animaciones de interfaz</p>
+              <p class="text-[10px] text-slate-400">Activa o reduce las transiciones visuales</p>
+            </div>
+            <label class="relative inline-flex items-center cursor-pointer">
+              <input type="checkbox" id="toggleAnimaciones" checked onchange="actualizarPreferenciaAnimaciones(this)" class="sr-only peer">
+              <div class="w-9 h-5 bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-teal-500"></div>
+            </label>
+          </div>
+        </div>
+
+        <!-- CACHÉ Y DATOS -->
+        <div class="modal-section-card">
+          <span class="text-[10px] font-black uppercase text-rose-400 tracking-wider">Gestión de Archivos</span>
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="font-bold text-slate-200">Restablecer datos cargados</p>
+              <p class="text-[10px] text-slate-400">Limpia el Kárdex y el Horario actualmente en pantalla</p>
+            </div>
+            <button onclick="limpiarArchivosCargados()" class="bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 border border-rose-500/40 text-xs font-bold py-1.5 px-3 rounded-xl transition cursor-pointer">
+              Limpiar
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="px-6 py-3.5 bg-slate-900/90 border-t border-slate-800 flex justify-end">
+        <button onclick="cerrarModalConfiguracion()" class="bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold py-1.5 px-5 rounded-xl transition cursor-pointer">Listo</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER OFICIAL VAGRANT EN DOS BLOQUES -->
+  <footer class="w-full bg-[#111827] border-t border-slate-800 mt-16 select-none">
+    
+    <!-- PRIMER BLOQUE: Logo y Marca Vagrant -->
+    <div class="max-w-[1440px] mx-auto py-8 px-6 flex flex-col items-center justify-center text-center">
+      <div class="bg-[#1c3852] border border-[#2d5275] rounded-2xl px-5 py-3 shadow-md flex flex-col sm:flex-row items-center justify-center gap-3.5">
+        <div class="w-12 h-12 flex items-center justify-center shrink-0">
+          <img src="animacion-vagrant_101.webp" 
+               onerror="this.onerror=null; this.src='VAGRANT-ANIMACIONES/animacion-vagrant_101.webp';" 
+               alt="Vagrant Logo" 
+               class="w-full h-full object-contain [image-rendering:pixelated] drop-shadow-md">
+        </div>
+        <div class="flex flex-col items-center sm:items-start text-center sm:text-left">
+          <span class="texto-vagrant text-sm sm:text-base tracking-widest leading-none">&lt;VAGRANT/&gt;</span>
+          <span class="text-[10px] font-bold text-sky-200/80 uppercase tracking-widest mt-1">Plataforma Académica DIVTIC</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- SEGUNDO BLOQUE: Derechos reservados -->
+    <div class="banner-bg w-full border-t border-slate-800 py-3.5 px-6 text-center shadow-inner">
+      <p class="text-xs text-slate-300">
+        MI ESPACIO CUCEI. <span class="font-bold text-white">&lt;VAGRANT/&gt;</span> cualquier duda|comentario victor.gonzalez8851@alumnos.udg.mx
+      </p>
+    </div>
+
+  </footer>
+
+  <!-- ARCHIVOS JAVASCRIPT -->
+  <script src="planEstudios.js"></script>
+  <script src="app.js"></script>
+
+</body>
+</html>
